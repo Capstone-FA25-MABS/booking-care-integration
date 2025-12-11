@@ -7,6 +7,7 @@ services:
   # Infrastructure
   rabbitmq:
     image: rabbitmq:3.12-management
+    platform: linux/amd64
     container_name: bookingcare_rabbitmq
     hostname: rabbitmq
     ports:
@@ -30,6 +31,7 @@ services:
 
   redis:
     image: redis:7-alpine
+    platform: linux/amd64
     container_name: bookingcare_redis
     ports:
       - "6379:6379"
@@ -46,6 +48,7 @@ services:
 
   mongodb:
     image: mongo:7
+    platform: linux/amd64
     container_name: bookingcare_mongodb
     ports:
       - "27017:27017"
@@ -67,6 +70,7 @@ services:
   # SQL Server Databases
   sqlserver-discount:
     image: mcr.microsoft.com/azure-sql-edge:latest
+    platform: linux/amd64
     container_name: bookingcare_sqlserver_discount
     ports:
       - "1434:1433"
@@ -88,6 +92,7 @@ services:
 
   sqlserver-saga:
     image: mcr.microsoft.com/azure-sql-edge:latest
+    platform: linux/amd64
     container_name: bookingcare_sqlserver_saga
     ports:
       - "1400:1433"
@@ -109,6 +114,7 @@ services:
 
   sqlserver-user:
     image: mcr.microsoft.com/azure-sql-edge:latest
+    platform: linux/amd64
     container_name: bookingcare_sqlserver_user
     ports:
       - "1445:1433"
@@ -130,6 +136,7 @@ services:
 
   sqlserver-doctor:
     image: mcr.microsoft.com/azure-sql-edge:latest
+    platform: linux/amd64
     container_name: bookingcare_sqlserver_doctor
     ports:
       - "1447:1433"
@@ -151,6 +158,7 @@ services:
 
   sqlserver-auth:
     image: mcr.microsoft.com/azure-sql-edge:latest
+    platform: linux/amd64
     container_name: bookingcare_sqlserver_auth
     ports:
       - "1449:1433"
@@ -172,6 +180,7 @@ services:
 
   sqlserver-appointment:
     image: mcr.microsoft.com/azure-sql-edge:latest
+    platform: linux/amd64
     container_name: bookingcare_sqlserver_appointment
     ports:
       - "1450:1433"
@@ -193,6 +202,7 @@ services:
 
   sqlserver-hospital:
     image: mcr.microsoft.com/azure-sql-edge:latest
+    platform: linux/amd64
     container_name: bookingcare_sqlserver_hospital
     ports:
       - "1448:1433"
@@ -214,6 +224,7 @@ services:
 
   sqlserver-schedule:
     image: mcr.microsoft.com/azure-sql-edge:latest
+    platform: linux/amd64
     container_name: bookingcare_sqlserver_schedule
     ports:
       - "1446:1433"
@@ -235,6 +246,7 @@ services:
 
   sqlserver-payment:
     image: mcr.microsoft.com/azure-sql-edge:latest
+    platform: linux/amd64
     container_name: bookingcare_sqlserver_payment
     ports:
       - "1451:1433"
@@ -256,6 +268,7 @@ services:
 
   sqlserver-servicemedical:
     image: mcr.microsoft.com/azure-sql-edge:latest
+    platform: linux/amd64
     container_name: bookingcare_sqlserver_servicemedical
     ports:
       - "1452:1433"
@@ -277,6 +290,7 @@ services:
 
   sqlserver-ai:
     image: mcr.microsoft.com/azure-sql-edge:latest
+    platform: linux/amd64
     container_name: bookingcare_sqlserver_ai
     ports:
       - "1453:1433"
@@ -299,6 +313,7 @@ services:
   # Microservices
   api-gateway:
     image: ${DOCKER_USERNAME:-hiumx}/bookingcare-api-gateway:${VERSION:-latest}
+    platform: linux/amd64
     container_name: bookingcare_api_gateway
     ports:
       - "5001:5001"
@@ -332,6 +347,7 @@ services:
 
   ai-service:
     image: ${DOCKER_USERNAME:-hiumx}/bookingcare-ai-service:${VERSION:-latest}
+    platform: linux/amd64
     container_name: bookingcare_ai_service
     ports:
       - "6001:6001"
@@ -357,6 +373,7 @@ services:
 
   analytics-service:
     image: ${DOCKER_USERNAME:-hiumx}/bookingcare-analytics-service:${VERSION:-latest}
+    platform: linux/amd64
     container_name: bookingcare_analytics_service
     ports:
       - "6000:6000"
@@ -378,6 +395,7 @@ services:
 
   appointment-service:
     image: ${DOCKER_USERNAME:-hiumx}/bookingcare-appointment-service:${VERSION:-latest}
+    platform: linux/amd64
     container_name: bookingcare_appointment_service
     ports:
       - "6002:6002"
@@ -416,6 +434,7 @@ services:
 
   auth-service:
     image: ${DOCKER_USERNAME:-hiumx}/bookingcare-auth-service:${VERSION:-latest}
+    platform: linux/amd64
     container_name: bookingcare_auth_service
     ports:
       - "6003:6003"
@@ -454,6 +473,7 @@ services:
 
   communication-service:
     image: ${DOCKER_USERNAME:-hiumx}/bookingcare-communication-service:${VERSION:-latest}
+    platform: linux/amd64
     container_name: bookingcare_communication_service
     ports:
       - "6006:6006"
@@ -491,6 +511,7 @@ services:
 
   content-service:
     image: ${DOCKER_USERNAME:-hiumx}/bookingcare-content-service:${VERSION:-latest}
+    platform: linux/amd64
     container_name: bookingcare_content_service
     ports:
       - "6005:6005"
@@ -512,6 +533,7 @@ services:
 
   discount-service:
     image: ${DOCKER_USERNAME:-hiumx}/bookingcare-discount-service:${VERSION:-latest}
+    platform: linux/amd64
     container_name: bookingcare_discount_service
     ports:
       - "6007:6007"
@@ -538,6 +560,7 @@ services:
 
   doctor-service:
     image: ${DOCKER_USERNAME:-hiumx}/bookingcare-doctor-service:${VERSION:-latest}
+    platform: linux/amd64
     container_name: bookingcare_doctor_service
     ports:
       - "6008:6008"
@@ -568,6 +591,7 @@ services:
 
   favorites-service:
     image: ${DOCKER_USERNAME:-hiumx}/bookingcare-favorites-service:${VERSION:-latest}
+    platform: linux/amd64
     container_name: bookingcare_favorites_service
     ports:
       - "6009:6009"
@@ -589,6 +613,7 @@ services:
 
   hospital-service:
     image: ${DOCKER_USERNAME:-hiumx}/bookingcare-hospital-service:${VERSION:-latest}
+    platform: linux/amd64
     container_name: bookingcare_hospital_service
     ports:
       - "6004:6004"
@@ -620,6 +645,7 @@ services:
 
   notification-service:
     image: ${DOCKER_USERNAME:-hiumx}/bookingcare-notification-service:${VERSION:-latest}
+    platform: linux/amd64
     container_name: bookingcare_notification_service
     ports:
       - "6010:6010"
@@ -658,6 +684,7 @@ services:
 
   payment-service:
     image: ${DOCKER_USERNAME:-hiumx}/bookingcare-payment-service:${VERSION:-latest}
+    platform: linux/amd64
     container_name: bookingcare_payment_service
     ports:
       - "6088:6011"
@@ -692,6 +719,7 @@ services:
 
   review-service:
     image: ${DOCKER_USERNAME:-hiumx}/bookingcare-review-service:${VERSION:-latest}
+    platform: linux/amd64
     container_name: bookingcare_review_service
     ports:
       - "6012:6012"
@@ -716,6 +744,7 @@ services:
 
   saga-service:
     image: ${DOCKER_USERNAME:-hiumx}/bookingcare-saga-service:${VERSION:-latest}
+    platform: linux/amd64
     container_name: bookingcare_saga_service
     ports:
       - "6013:6013"
@@ -736,6 +765,7 @@ services:
 
   schedule-service:
     image: ${DOCKER_USERNAME:-hiumx}/bookingcare-schedule-service:${VERSION:-latest}
+    platform: linux/amd64
     container_name: bookingcare_schedule_service
     ports:
       - "6014:6014"
@@ -768,6 +798,7 @@ services:
 
   servicemedical-service:
     image: ${DOCKER_USERNAME:-hiumx}/bookingcare-servicemedical-service:${VERSION:-latest}
+    platform: linux/amd64
     container_name: bookingcare_servicemedical_service
     ports:
       - "6015:6015"
@@ -793,6 +824,7 @@ services:
 
   user-service:
     image: ${DOCKER_USERNAME:-hiumx}/bookingcare-user-service:${VERSION:-latest}
+    platform: linux/amd64
     container_name: bookingcare_user_service
     ports:
       - "6016:6016"
@@ -823,6 +855,7 @@ services:
 
   ui-user:
     image: ${DOCKER_USERNAME:-hiumx}/bookingcare-frontend:${VERSION:-latest}
+    platform: linux/amd64
     container_name: bookingcare_ui_user
     ports:
       - "5173:80"
@@ -846,6 +879,7 @@ services:
 
   ui-admin:
     image: ${DOCKER_USERNAME:-hiumx}/bookingcare-frontend-admin:${VERSION:-latest}
+    platform: linux/amd64
     container_name: bookingcare_ui_admin
     ports:
       - "5174:80"
