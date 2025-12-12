@@ -11,6 +11,11 @@ set -e  # Exit on error
 # Configuration
 BACKUP_PATH="${1}"
 
+# Convert to absolute path if relative
+if [[ "${BACKUP_PATH}" != /* ]]; then
+    BACKUP_PATH="$(cd "$(dirname "${BACKUP_PATH}")" && pwd)/$(basename "${BACKUP_PATH}")"
+fi
+
 # Colors for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -87,7 +92,7 @@ restore_volume() {
         -v "${volume_name}:/data" \
         -v "${BACKUP_PATH}:/backup:ro" \
         alpine \
-        sh -c "cd /data && tar xzf /backup/${volume_name}.tar.gz"
+        sh -c "rm -rf /data/* /data/..?* /data/.[!.]* 2>/dev/null || true && cd /data && tar xzf /backup/${volume_name}.tar.gz"
     
     log_success "Restored ${volume_name}"
     return 0
