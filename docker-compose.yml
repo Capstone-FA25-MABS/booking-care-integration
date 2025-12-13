@@ -687,7 +687,7 @@ services:
     platform: linux/amd64
     container_name: bookingcare_payment_service
     ports:
-      - "6088:6011"
+      - "6088:6088"
       - "6111:6111"
     depends_on:
       sqlserver-payment:
