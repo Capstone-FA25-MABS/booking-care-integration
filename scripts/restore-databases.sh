@@ -85,18 +85,49 @@ restore_mongodb() {
         return 1
     fi
     
-    # Restore
+    # Restore (without indexes first to avoid auth issues)
     docker exec bookingcare_mongodb mongorestore \
         --username="${mongo_user}" \
         --password="${mongo_pass}" \
         --authenticationDatabase=admin \
         --drop \
+        --noIndexRestore \
         /tmp/mongodb_backup
     
     if [ $? -ne 0 ]; then
-        log_error "MongoDB restore failed"
+        log_error "MongoDB data restore failed"
         return 1
     fi
+    
+    # Recreate indexes with proper authentication
+    log_info "Recreating MongoDB indexes..."
+    docker exec bookingcare_mongodb mongosh \
+        -u "${mongo_user}" \
+        -p "${mongo_pass}" \
+        --authenticationDatabase admin \
+        --quiet \
+        --eval '
+        use MABS_Communication;
+        db.Messages.createIndex({ conversationId: 1 });
+        db.Messages.createIndex({ conversationId: 1, createdAt: -1 });
+        db.Messages.createIndex({ senderId: 1 });
+        db.Messages.createIndex({ receiverId: 1, status: 1 });
+        db.Messages.createIndex({ content: "text" });
+        db.Conversations.createIndex({ participants: 1 });
+        db.Conversations.createIndex({ participants: 1, isActive: 1 });
+        db.Conversations.createIndex({ updatedAt: -1 });
+        db.Conversations.createIndex({ participants: 1, isActive: 1, updatedAt: -1 });
+        db.Conversations.createIndex({ userTags: 1 });
+        db.CallLogs.createIndex({ callerId: 1 });
+        db.CallLogs.createIndex({ receiverId: 1 });
+        db.CallLogs.createIndex({ conversationId: 1 });
+        db.CallLogs.createIndex({ callerId: 1, startedAt: -1 });
+        db.CallLogs.createIndex({ receiverId: 1, startedAt: -1 });
+        db.CallLogs.createIndex({ status: 1, startedAt: -1 });
+        db.CallLogs.createIndex({ type: 1, startedAt: -1 });
+        ' > /dev/null 2>&1
+    
+    log_success "MongoDB indexes recreated"
     
     # Cleanup
     docker exec bookingcare_mongodb rm -rf /tmp/mongodb_backup
@@ -164,12 +195,39 @@ restore_sqlserver() {
     docker start "${container_name}" > /dev/null 2>&1
     
     # Wait for SQL Server to start
-    sleep 5
+    log_info "Waiting for SQL Server to initialize..."
+    sleep 10
+    
+    # Check database state and force ONLINE if needed
+    log_info "Verifying database state..."
+    local db_state=$(docker exec "${container_name}" /opt/mssql-tools/bin/sqlcmd \
+        -S localhost -U sa -P "${sa_password}" \
+        -Q "SELECT state_desc FROM sys.databases WHERE name = '${db_name}'" \
+        -h -1 -W 2>/dev/null | tr -d '[:space:]')
+    
+    if [ "$db_state" = "RECOVERY_PENDING" ] || [ "$db_state" = "RESTORING" ]; then
+        log_warning "Database in ${db_state} state, forcing ONLINE..."
+        docker exec "${container_name}" /opt/mssql-tools/bin/sqlcmd \
+            -S localhost -U sa -P "${sa_password}" \
+            -Q "ALTER DATABASE [${db_name}] SET ONLINE;" > /dev/null 2>&1
+        sleep 3
+    fi
+    
+    # Verify final state
+    db_state=$(docker exec "${container_name}" /opt/mssql-tools/bin/sqlcmd \
+        -S localhost -U sa -P "${sa_password}" \
+        -Q "SELECT state_desc FROM sys.databases WHERE name = '${db_name}'" \
+        -h -1 -W 2>/dev/null | tr -d '[:space:]')
+    
+    if [ "$db_state" != "ONLINE" ]; then
+        log_error "Database ${db_name} is not ONLINE (state: ${db_state})"
+        log_info "Manual fix required: docker exec ${container_name} /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P '${sa_password}' -Q \"ALTER DATABASE [${db_name}] SET ONLINE;\""
+    fi
     
     # Cleanup
     rm -rf "${temp_restore_dir}"
     
-    log_success "SQL Server ${db_name} data files restored"
+    log_success "SQL Server ${db_name} data files restored (state: ${db_state})"
 }
 
 # Restore RabbitMQ

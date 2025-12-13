@@ -2,6 +2,11 @@
 
 Hướng dẫn chi tiết restore databases từ backup local lên EC2.
 
+> **📖 Tài liệu liên quan:**
+> - [SQL Server Architecture](SQL_SERVER_ARCHITECTURE.md) - Chi tiết kiến trúc và mapping restore
+> - [Backup Verification Report](BACKUP_VERIFICATION_REPORT.md) - Test results
+> - [Database Backup & Restore Guide](DATABASE_BACKUP_RESTORE_GUIDE.md) - Complete workflow
+
 ## 📋 Tổng Quan Quy Trình
 
 ```
@@ -126,7 +131,27 @@ ls -lh
 
 ## 🔄 Bước 5: Restore Databases
 
-### 5.1. Run Restore Script
+### 5.1. Hiểu Kiến Trúc SQL Server
+
+**Quan trọng**: Hệ thống dùng **1 SQL Server container riêng cho mỗi service**:
+
+```
+Container                         Port      Database        Service
+──────────────────────────────────────────────────────────────────────
+bookingcare_sqlserver_discount  → 1434  → MABS_Discount  → Discount Service
+bookingcare_sqlserver_saga      → 1400  → MABS_Saga      → Saga Service
+bookingcare_sqlserver_user      → 1445  → MABS_User      → User Service
+bookingcare_sqlserver_doctor    → 1446  → MABS_Doctor    → Doctor Service
+... (11 containers total)
+```
+
+**✅ Restore sẽ đúng vì**:
+- Mỗi backup file được map chính xác tới đúng container
+- Mỗi container có volume riêng biệt (isolated)
+- Script restore từng database vào đúng container của nó
+- Không có conflict giữa các containers
+
+### 5.2. Run Restore Script
 
 ```bash
 cd ~/booking-care-integration/scripts
@@ -135,7 +160,7 @@ cd ~/booking-care-integration/scripts
 ./restore-databases.sh ~/restore-temp/20251213_081030
 ```
 
-### 5.2. Xác Nhận Restore
+### 5.3. Xác Nhận Restore
 
 Script sẽ hỏi xác nhận:
 ```
@@ -144,9 +169,10 @@ This will restore databases from the backup. Continue? (y/N)
 
 Nhập `y` và Enter.
 
-### 5.3. Theo Dõi Progress
+### 5.4. Theo Dõi Progress
 
-Script sẽ hiển thị:
+Script sẽ restore **từng database vào đúng container**:
+
 ```
 [INFO] Starting database restore process...
 
@@ -160,11 +186,16 @@ Script sẽ hiển thị:
 [SUCCESS] RabbitMQ definitions restored
 
 [INFO] Restoring SQL Server: MABS_Discount
-[INFO] Stopping bookingcare_sqlserver_discount...
+[INFO] Stopping bookingcare_sqlserver_discount...    ← Đúng container
 [INFO] Starting bookingcare_sqlserver_discount...
 [SUCCESS] SQL Server MABS_Discount data files restored
 
-... (11 SQL Server databases total)
+[INFO] Restoring SQL Server: MABS_User
+[INFO] Stopping bookingcare_sqlserver_user...        ← Đúng container
+[INFO] Starting bookingcare_sqlserver_user...
+[SUCCESS] SQL Server MABS_User data files restored
+
+... (9 SQL Server databases nữa, mỗi cái vào đúng container)
 
 ════════════════════════════════════════════
 [SUCCESS] DATABASE RESTORE COMPLETED
@@ -172,6 +203,15 @@ Script sẽ hiển thị:
 Databases Restored: 14
 Failed Restores: 0
 ════════════════════════════════════════════
+```
+
+**Mapping trong script**:
+```bash
+# Mỗi dòng: "CONTAINER:DATABASE:PASSWORD"
+bookingcare_sqlserver_discount:MABS_Discount:${PASSWORD}
+bookingcare_sqlserver_user:MABS_User:${PASSWORD}
+# → Restore MABS_Discount_datafiles.tar.gz vào bookingcare_sqlserver_discount
+# → Restore MABS_User_datafiles.tar.gz vào bookingcare_sqlserver_user
 ```
 
 **Thời gian**: 3-5 phút (tùy số lượng databases)

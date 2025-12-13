@@ -285,7 +285,7 @@ BACKUP_DATE=20251213_143000  # Thay bằng backup của bạn
 ```bash
 # Check User database
 docker exec bookingcare_sqlserver_user /opt/mssql-tools/bin/sqlcmd \
-    -S localhost -U sa -P "${SQLSERVER_USER_PASSWORD}" \
+    -S localhost -U sa -P "${User@1234!}" \
     -Q "USE MABS_User; SELECT COUNT(*) AS TableCount FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE'"
 
 # Check có data không
