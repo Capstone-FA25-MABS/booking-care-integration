@@ -6,11 +6,14 @@
 # Usage: ./backup-databases.sh [backup-directory]
 ##############################################################################
 
-set -e  # Exit on error
+# Don't exit on error - we want to backup as much as possible
+set +e
 
 # Load environment variables
 if [ -f "../.env" ]; then
-    export $(cat ../.env | grep -v '^#' | xargs)
+    set -a
+    source ../.env 2>/dev/null || true
+    set +a
 fi
 
 # Configuration
@@ -39,20 +42,39 @@ log_info "Database backup directory: ${BACKUP_PATH}"
 backup_mongodb() {
     log_info "Backing up MongoDB..."
     
+    # Use correct environment variables with proper fallback
+    local mongo_user="${MONGO_INITDB_ROOT_USERNAME:-bookingcare}"
+    local mongo_pass="${MONGO_INITDB_ROOT_PASSWORD:-password123}"
+    
     docker exec bookingcare_mongodb mongodump \
-        --username="${MONGO_INITDB_ROOT_USERNAME:-admin}" \
-        --password="${MONGO_INITDB_ROOT_PASSWORD:-password}" \
+        --username="${mongo_user}" \
+        --password="${mongo_pass}" \
         --authenticationDatabase=admin \
         --out=/tmp/mongodb_backup
     
+    if [ $? -ne 0 ]; then
+        log_error "MongoDB dump failed"
+        return 1
+    fi
+    
     docker cp bookingcare_mongodb:/tmp/mongodb_backup "${BACKUP_PATH}/mongodb"
+    
+    if [ $? -ne 0 ]; then
+        log_error "Failed to copy MongoDB backup"
+        return 1
+    fi
     
     docker exec bookingcare_mongodb rm -rf /tmp/mongodb_backup
     
-    cd "${BACKUP_PATH}" && tar czf mongodb.tar.gz mongodb && rm -rf mongodb
+    (cd "${BACKUP_PATH}" && tar czf mongodb.tar.gz mongodb && rm -rf mongodb)
     
-    local size=$(du -h "${BACKUP_PATH}/mongodb.tar.gz" | cut -f1)
-    log_success "MongoDB backed up (${size})"
+    if [ -f "${BACKUP_PATH}/mongodb.tar.gz" ]; then
+        local size=$(du -h "${BACKUP_PATH}/mongodb.tar.gz" | cut -f1)
+        log_success "MongoDB backed up (${size})"
+    else
+        log_error "MongoDB backup failed"
+        return 1
+    fi
 }
 
 # Backup Redis
@@ -71,7 +93,8 @@ backup_redis() {
     fi
 }
 
-# Backup SQL Server Database
+# Backup SQL Server Database using data file export
+# Note: Azure SQL Edge doesn't include sqlcmd, so we backup data files directly
 backup_sqlserver() {
     local container_name=$1
     local db_name=$2
@@ -79,21 +102,44 @@ backup_sqlserver() {
     
     log_info "Backing up SQL Server: ${db_name}"
     
-    # Create backup inside container
-    docker exec "${container_name}" /opt/mssql-tools/bin/sqlcmd \
-        -S localhost -U SA -P "${sa_password}" \
-        -Q "BACKUP DATABASE [${db_name}] TO DISK = N'/tmp/${db_name}.bak' WITH NOFORMAT, NOINIT, NAME = '${db_name}-full', SKIP, NOREWIND, NOUNLOAD, STATS = 10"
+    # Create SQL Server data backup directory
+    local db_backup_dir="${BACKUP_PATH}/${db_name}_datafiles"
+    mkdir -p "${db_backup_dir}"
     
-    # Copy backup file
-    docker cp "${container_name}:/tmp/${db_name}.bak" "${BACKUP_PATH}/${db_name}.bak"
+    # Find and copy database data files (.mdf and .ldf)
+    # Azure SQL Edge stores database files in /var/opt/mssql/data/
+    local data_files=$(docker exec "${container_name}" find /var/opt/mssql/data/ -name "${db_name}*.mdf" -o -name "${db_name}*.ldf" 2>/dev/null)
     
-    # Clean up
-    docker exec "${container_name}" rm -f "/tmp/${db_name}.bak"
-    
-    if [ -f "${BACKUP_PATH}/${db_name}.bak" ]; then
-        local size=$(du -h "${BACKUP_PATH}/${db_name}.bak" | cut -f1)
-        log_success "SQL Server ${db_name} backed up (${size})"
+    if [ -z "$data_files" ]; then
+        log_warning "No data files found for ${db_name}, skipping"
+        return 1
     fi
+    
+    # Copy all database files
+    local file_count=0
+    while IFS= read -r file_path; do
+        if [ -n "$file_path" ]; then
+            local filename=$(basename "$file_path")
+            docker cp "${container_name}:${file_path}" "${db_backup_dir}/${filename}" 2>/dev/null
+            if [ $? -eq 0 ]; then
+                ((file_count++))
+            fi
+        fi
+    done <<< "$data_files"
+    
+    if [ $file_count -gt 0 ]; then
+        # Create compressed archive of data files
+        (cd "${BACKUP_PATH}" && tar czf "${db_name}_datafiles.tar.gz" "${db_name}_datafiles" && rm -rf "${db_name}_datafiles")
+        
+        if [ -f "${BACKUP_PATH}/${db_name}_datafiles.tar.gz" ]; then
+            local size=$(du -h "${BACKUP_PATH}/${db_name}_datafiles.tar.gz" | cut -f1)
+            log_success "SQL Server ${db_name} backed up (${size}, ${file_count} files)"
+            return 0
+        fi
+    fi
+    
+    log_warning "Failed to backup ${db_name}"
+    return 1
 }
 
 # Backup RabbitMQ definitions

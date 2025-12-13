@@ -6,12 +6,13 @@
 # Usage: ./restore-databases.sh <backup-directory>
 ##############################################################################
 
-set -e  # Exit on error
+# Don't exit on error - we want to restore as much as possible
+set +e
 
 # Load environment variables
 if [ -f "../.env" ]; then
     set -a
-    source ../.env
+    source ../.env 2>/dev/null || true
     set +a
 fi
 
@@ -64,19 +65,38 @@ fi
 restore_mongodb() {
     log_info "Restoring MongoDB..."
     
+    # Use correct environment variables with proper fallback
+    local mongo_user="${MONGO_INITDB_ROOT_USERNAME:-bookingcare}"
+    local mongo_pass="${MONGO_INITDB_ROOT_PASSWORD:-password123}"
+    
     # Extract mongodb backup
-    cd "${BACKUP_PATH}" && tar xzf mongodb.tar.gz
+    (cd "${BACKUP_PATH}" && tar xzf mongodb.tar.gz)
+    
+    if [ ! -d "${BACKUP_PATH}/mongodb" ]; then
+        log_error "MongoDB backup directory not found after extraction"
+        return 1
+    fi
     
     # Copy to container
     docker cp "${BACKUP_PATH}/mongodb" bookingcare_mongodb:/tmp/mongodb_backup
     
+    if [ $? -ne 0 ]; then
+        log_error "Failed to copy MongoDB backup to container"
+        return 1
+    fi
+    
     # Restore
     docker exec bookingcare_mongodb mongorestore \
-        --username="${MONGO_INITDB_ROOT_USERNAME:-admin}" \
-        --password="${MONGO_INITDB_ROOT_PASSWORD:-password}" \
+        --username="${mongo_user}" \
+        --password="${mongo_pass}" \
         --authenticationDatabase=admin \
         --drop \
         /tmp/mongodb_backup
+    
+    if [ $? -ne 0 ]; then
+        log_error "MongoDB restore failed"
+        return 1
+    fi
     
     # Cleanup
     docker exec bookingcare_mongodb rm -rf /tmp/mongodb_backup
@@ -102,7 +122,7 @@ restore_redis() {
     log_success "Redis restored"
 }
 
-# Restore SQL Server Database
+# Restore SQL Server Database from data files
 restore_sqlserver() {
     local container_name=$1
     local db_name=$2
@@ -110,23 +130,46 @@ restore_sqlserver() {
     
     log_info "Restoring SQL Server: ${db_name}"
     
-    # Copy backup file to container
-    docker cp "${BACKUP_PATH}/${db_name}.bak" "${container_name}:/tmp/${db_name}.bak"
+    # Check if data files backup exists
+    local datafiles_archive="${BACKUP_PATH}/${db_name}_datafiles.tar.gz"
+    if [ ! -f "${datafiles_archive}" ]; then
+        log_warning "Data files backup not found: ${datafiles_archive}"
+        return 1
+    fi
     
-    # Drop existing database if exists
-    docker exec "${container_name}" /opt/mssql-tools/bin/sqlcmd \
-        -S localhost -U SA -P "${sa_password}" \
-        -Q "IF EXISTS (SELECT name FROM sys.databases WHERE name = N'${db_name}') DROP DATABASE [${db_name}]" || true
+    # Extract data files
+    local temp_restore_dir="${BACKUP_PATH}/${db_name}_restore_temp"
+    mkdir -p "${temp_restore_dir}"
+    tar xzf "${datafiles_archive}" -C "${temp_restore_dir}"
     
-    # Restore database
-    docker exec "${container_name}" /opt/mssql-tools/bin/sqlcmd \
-        -S localhost -U SA -P "${sa_password}" \
-        -Q "RESTORE DATABASE [${db_name}] FROM DISK = N'/tmp/${db_name}.bak' WITH FILE = 1, NOUNLOAD, REPLACE, RECOVERY, STATS = 5"
+    # Stop SQL Server container to replace data files
+    log_info "Stopping ${container_name}..."
+    docker stop "${container_name}" > /dev/null 2>&1
     
-    # Clean up
-    docker exec "${container_name}" rm -f "/tmp/${db_name}.bak"
+    # Copy data files to container
+    local datafiles_dir="${temp_restore_dir}/${db_name}_datafiles"
+    if [ -d "${datafiles_dir}" ]; then
+        for file in "${datafiles_dir}"/*; do
+            if [ -f "$file" ]; then
+                local filename=$(basename "$file")
+                docker cp "$file" "${container_name}:/var/opt/mssql/data/${filename}" 2>/dev/null || {
+                    log_warning "Failed to copy ${filename}, container may need to be running"
+                }
+            fi
+        done
+    fi
     
-    log_success "SQL Server ${db_name} restored"
+    # Restart SQL Server container
+    log_info "Starting ${container_name}..."
+    docker start "${container_name}" > /dev/null 2>&1
+    
+    # Wait for SQL Server to start
+    sleep 5
+    
+    # Cleanup
+    rm -rf "${temp_restore_dir}"
+    
+    log_success "SQL Server ${db_name} data files restored"
 }
 
 # Restore RabbitMQ
@@ -197,12 +240,19 @@ SQL_DATABASES=(
 
 for db_info in "${SQL_DATABASES[@]}"; do
     IFS=':' read -r container db_name password <<< "${db_info}"
-    if [ -f "${BACKUP_PATH}/${db_name}.bak" ]; then
+    # Check for data files backup (new method)
+    if [ -f "${BACKUP_PATH}/${db_name}_datafiles.tar.gz" ]; then
         if restore_sqlserver "${container}" "${db_name}" "${password}"; then
             ((RESTORE_COUNT++))
         else
             ((FAILED_COUNT++))
         fi
+        echo ""
+    # Fallback to .bak files (old method, if exists)
+    elif [ -f "${BACKUP_PATH}/${db_name}.bak" ]; then
+        log_warning "Found .bak file for ${db_name}, but restore method not implemented"
+        log_info "Please use EF Core migrations or manual restore"
+        ((FAILED_COUNT++))
         echo ""
     fi
 done

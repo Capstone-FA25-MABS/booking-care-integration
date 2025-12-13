@@ -70,7 +70,7 @@ services:
   # SQL Server Databases
   sqlserver-discount:
     image: mcr.microsoft.com/azure-sql-edge:latest
-    platform: linux/amd64
+    # platform: linux/amd64
     container_name: bookingcare_sqlserver_discount
     ports:
       - "1434:1433"
@@ -92,7 +92,7 @@ services:
 
   sqlserver-saga:
     image: mcr.microsoft.com/azure-sql-edge:latest
-    platform: linux/amd64
+    # platform: linux/amd64
     container_name: bookingcare_sqlserver_saga
     ports:
       - "1400:1433"
@@ -114,7 +114,7 @@ services:
 
   sqlserver-user:
     image: mcr.microsoft.com/azure-sql-edge:latest
-    platform: linux/amd64
+    # platform: linux/amd64
     container_name: bookingcare_sqlserver_user
     ports:
       - "1445:1433"
@@ -136,7 +136,7 @@ services:
 
   sqlserver-doctor:
     image: mcr.microsoft.com/azure-sql-edge:latest
-    platform: linux/amd64
+    # platform: linux/amd64
     container_name: bookingcare_sqlserver_doctor
     ports:
       - "1447:1433"
@@ -158,7 +158,7 @@ services:
 
   sqlserver-auth:
     image: mcr.microsoft.com/azure-sql-edge:latest
-    platform: linux/amd64
+    # platform: linux/amd64
     container_name: bookingcare_sqlserver_auth
     ports:
       - "1449:1433"
@@ -180,7 +180,7 @@ services:
 
   sqlserver-appointment:
     image: mcr.microsoft.com/azure-sql-edge:latest
-    platform: linux/amd64
+    # platform: linux/amd64
     container_name: bookingcare_sqlserver_appointment
     ports:
       - "1450:1433"
@@ -202,7 +202,7 @@ services:
 
   sqlserver-hospital:
     image: mcr.microsoft.com/azure-sql-edge:latest
-    platform: linux/amd64
+    # platform: linux/amd64
     container_name: bookingcare_sqlserver_hospital
     ports:
       - "1448:1433"
@@ -224,7 +224,7 @@ services:
 
   sqlserver-schedule:
     image: mcr.microsoft.com/azure-sql-edge:latest
-    platform: linux/amd64
+    # platform: linux/amd64
     container_name: bookingcare_sqlserver_schedule
     ports:
       - "1446:1433"
@@ -246,7 +246,7 @@ services:
 
   sqlserver-payment:
     image: mcr.microsoft.com/azure-sql-edge:latest
-    platform: linux/amd64
+    # platform: linux/amd64
     container_name: bookingcare_sqlserver_payment
     ports:
       - "1451:1433"
@@ -268,7 +268,7 @@ services:
 
   sqlserver-servicemedical:
     image: mcr.microsoft.com/azure-sql-edge:latest
-    platform: linux/amd64
+    # platform: linux/amd64
     container_name: bookingcare_sqlserver_servicemedical
     ports:
       - "1452:1433"
@@ -290,7 +290,7 @@ services:
 
   sqlserver-ai:
     image: mcr.microsoft.com/azure-sql-edge:latest
-    platform: linux/amd64
+    # platform: linux/amd64
     container_name: bookingcare_sqlserver_ai
     ports:
       - "1453:1433"
