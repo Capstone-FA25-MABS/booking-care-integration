@@ -903,47 +903,19 @@ services:
 
 volumes:
   rabbitmq_data:
-    external: true
-    name: bookingcaresystembackend_rabbitmq_data
   redis_data:
-    external: true
-    name: bookingcaresystembackend_redis_data
   mongodb_data:
-    external: true
-    name: bookingcaresystembackend_mongodb_data
   sqlserver_discount_data:
-    external: true
-    name: bookingcaresystembackend_sqlserver_discount_data
   sqlserver_saga_data:
-    external: true
-    name: bookingcaresystembackend_sqlserver_saga_data
   sqlserver_user_data:
-    external: true
-    name: bookingcaresystembackend_sqlserver_user_data
   sqlserver_doctor_data:
-    external: true
-    name: bookingcaresystembackend_sqlserver_doctor_data
   sqlserver_auth_data:
-    external: true
-    name: bookingcaresystembackend_sqlserver_auth_data
   sqlserver_appointment_data:
-    external: true
-    name: bookingcaresystembackend_sqlserver_appointment_data
   sqlserver_hospital_data:
-    external: true
-    name: bookingcaresystembackend_sqlserver_hospital_data
   sqlserver_schedule_data:
-    external: true
-    name: bookingcaresystembackend_sqlserver_schedule_data
   sqlserver_payment_data:
-    external: true
-    name: bookingcaresystembackend_sqlserver_payment_data
   sqlserver_servicemedical_data:
-    external: true
-    name: bookingcaresystembackend_sqlserver_servicemedical_data
   sqlserver_ai_data:
-    external: true
-    name: bookingcaresystembackend_sqlserver_ai_data
 
 networks:
   bookingcare-network:
