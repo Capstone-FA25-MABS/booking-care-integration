@@ -480,8 +480,8 @@ services:
       - CallRecordings__MaxFileSizeBytes=${CALL_RECORDINGS_MAX_FILE_SIZE_BYTES}
       # Voice
       - Voice__MaxFileSizeBytes=${VOICE_MAX_FILE_SIZE_BYTES}
-      - Services__Hospital__GrpcUrl=http://hospital-service:6104
-      - Services__Doctor__GrpcUrl=http://doctor-service:6108
+      - GrpcClients__Hospital__Address=http://hospital-service:6104
+      - GrpcClients__Doctor__Address=http://doctor-service:6108
     networks:
       - bookingcare-network
     restart: unless-stopped
