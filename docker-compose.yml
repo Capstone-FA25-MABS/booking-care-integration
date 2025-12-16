@@ -355,18 +355,133 @@ services:
     depends_on:
       sqlserver-ai:
         condition: service_healthy
+      sqlserver-appointment:
+        condition: service_healthy
+      sqlserver-payment:
+        condition: service_healthy
+      sqlserver-doctor:
+        condition: service_healthy
+      sqlserver-hospital:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
     environment:
       - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT}
       - ASPNETCORE_URLS=http://+:6001;http://+:6101
+      # Connection Strings
       - ConnectionStrings__DefaultConnection=${AI_CONNECTION_STRING}
-      - Jwt__SecretKey=${JWT_KEY}
+      - ConnectionStrings__AppointmentConnection=${APPOINTMENT_CONNECTION_STRING}
+      - ConnectionStrings__PaymentConnection=${PAYMENT_CONNECTION_STRING}
+      - ConnectionStrings__DoctorConnection=${DOCTOR_CONNECTION_STRING}
+      - ConnectionStrings__HospitalConnection=${HOSPITAL_CONNECTION_STRING}
+      # JWT
+      - Jwt__Key=${JWT_KEY}
       - Jwt__Issuer=${JWT_ISSUER}
       - Jwt__Audience=${JWT_AUDIENCE}
-      - Gemini__ApiKey=${GEMINI_API_KEY}
+      # RabbitMQ
+      - RabbitMQ__HostName=${RABBITMQ_HOSTNAME}
+      - RabbitMQ__Port=${RABBITMQ_PORT}
+      - RabbitMQ__UserName=${RABBITMQ_DEFAULT_USER}
+      - RabbitMQ__Password=${RABBITMQ_DEFAULT_PASS}
+      - RabbitMQ__VirtualHost=${RABBITMQ_DEFAULT_VHOST}
+      - RabbitMQ__ExchangeName=booking_care_event_bus
+      - RabbitMQ__QueueName=ai-service-queue
+      - RabbitMQ__RetryCount=3
+      - RabbitMQ__ConnectionTimeout=30000
+      - RabbitMQ__RequestedHeartbeat=60
+      - RabbitMQ__AutomaticRecoveryEnabled=true
+      - RabbitMQ__NetworkRecoveryInterval=5000
+      - RabbitMQ__PersistentMessages=true
+      - RabbitMQ__AutoDeleteQueue=false
+      - RabbitMQ__DurableQueue=true
+      - RabbitMQ__ExclusiveQueue=false
+      # Gemini Base Configuration
+      - Gemini__ApiEndpoint=${GEMINI_API_ENDPOINT}
+      - Gemini__Temperature=${GEMINI_TEMPERATURE}
+      - Gemini__MaxTokens=${GEMINI_MAX_TOKENS}
+      - Gemini__TopK=${GEMINI_TOP_K}
+      - Gemini__TopP=${GEMINI_TOP_P}
+      # Gemini Services
+      - GeminiServices__SymptomAnalysis__ApiKey=${GEMINI_SYMPTOM_ANALYSIS_API_KEY}
+      - GeminiServices__SymptomAnalysis__PrimaryModel=${GEMINI_SYMPTOM_ANALYSIS_PRIMARY_MODEL}
+      - GeminiServices__SymptomAnalysis__FallbackModel=${GEMINI_SYMPTOM_ANALYSIS_FALLBACK_MODEL}
+      - GeminiServices__SymptomAnalysis__MaxTokens=${GEMINI_SYMPTOM_ANALYSIS_MAX_TOKENS}
+      - GeminiServices__LabResultAnalysis__ApiKey=${GEMINI_LAB_RESULT_API_KEY}
+      - GeminiServices__LabResultAnalysis__PrimaryModel=${GEMINI_LAB_RESULT_PRIMARY_MODEL}
+      - GeminiServices__LabResultAnalysis__FallbackModel=${GEMINI_LAB_RESULT_FALLBACK_MODEL}
+      - GeminiServices__LabResultAnalysis__MaxTokens=${GEMINI_LAB_RESULT_MAX_TOKENS}
+      - GeminiServices__DermatologyAnalysis__ApiKey=${GEMINI_DERMATOLOGY_API_KEY}
+      - GeminiServices__DermatologyAnalysis__PrimaryModel=${GEMINI_DERMATOLOGY_PRIMARY_MODEL}
+      - GeminiServices__DermatologyAnalysis__FallbackModel=${GEMINI_DERMATOLOGY_FALLBACK_MODEL}
+      - GeminiServices__MedicalSummary__ApiKey=${GEMINI_MEDICAL_SUMMARY_API_KEY}
+      - GeminiServices__MedicalSummary__PrimaryModel=${GEMINI_MEDICAL_SUMMARY_PRIMARY_MODEL}
+      - GeminiServices__MedicalSummary__FallbackModel=${GEMINI_MEDICAL_SUMMARY_FALLBACK_MODEL}
+      # Groq Base Configuration
+      - Groq__ApiEndpoint=${GROQ_API_ENDPOINT}
+      - Groq__ApiKey=${GROQ_API_KEY}
+      - Groq__AskingModel=${GROQ_ASKING_MODEL}
+      - Groq__ConclusionModel=${GROQ_CONCLUSION_MODEL}
+      - Groq__Temperature=${GROQ_TEMPERATURE}
+      - Groq__MaxTokens=${GROQ_MAX_TOKENS}
+      - Groq__MaxRetries=${GROQ_MAX_RETRIES}
+      - Groq__TimeoutSeconds=${GROQ_TIMEOUT_SECONDS}
+      - Groq__Enabled=${GROQ_ENABLED}
+      # Groq Services
+      - GroqServices__SymptomAnalysis__ApiKey=${GROQ_SYMPTOM_ANALYSIS_API_KEY}
+      - GroqServices__SymptomAnalysis__PrimaryModel=${GROQ_SYMPTOM_ANALYSIS_PRIMARY_MODEL}
+      - GroqServices__SymptomAnalysis__FallbackModel=${GROQ_SYMPTOM_ANALYSIS_FALLBACK_MODEL}
+      - GroqServices__SymptomAnalysis__MaxTokens=${GROQ_SYMPTOM_ANALYSIS_MAX_TOKENS}
+      - GroqServices__LabResultAnalysis__ApiKey=${GROQ_LAB_RESULT_API_KEY}
+      - GroqServices__LabResultAnalysis__PrimaryModel=${GROQ_LAB_RESULT_PRIMARY_MODEL}
+      - GroqServices__LabResultAnalysis__FallbackModel=${GROQ_LAB_RESULT_FALLBACK_MODEL}
+      - GroqServices__LabResultAnalysis__MaxTokens=${GROQ_LAB_RESULT_MAX_TOKENS}
+      - GroqServices__DermatologyAnalysis__ApiKey=${GROQ_DERMATOLOGY_API_KEY}
+      - GroqServices__DermatologyAnalysis__PrimaryModel=${GROQ_DERMATOLOGY_PRIMARY_MODEL}
+      - GroqServices__DermatologyAnalysis__FallbackModel=${GROQ_DERMATOLOGY_FALLBACK_MODEL}
+      - GroqServices__MedicalSummary__ApiKey=${GROQ_MEDICAL_SUMMARY_API_KEY}
+      - GroqServices__MedicalSummary__PrimaryModel=${GROQ_MEDICAL_SUMMARY_PRIMARY_MODEL}
+      - GroqServices__MedicalSummary__FallbackModel=${GROQ_MEDICAL_SUMMARY_FALLBACK_MODEL}
+      - GroqServices__InsightsSummary__ApiKey=${GROQ_INSIGHTS_SUMMARY_API_KEY}
+      - GroqServices__InsightsSummary__PrimaryModel=${GROQ_INSIGHTS_SUMMARY_PRIMARY_MODEL}
+      - GroqServices__InsightsSummary__FallbackModel=${GROQ_INSIGHTS_SUMMARY_FALLBACK_MODEL}
+      - GroqServices__InsightsSummary__MaxTokens=${GROQ_INSIGHTS_SUMMARY_MAX_TOKENS}
+      - GroqServices__InsightsSummary__Temperature=${GROQ_INSIGHTS_SUMMARY_TEMPERATURE}
+      - GroqServices__InsightsSummary__TimeoutSeconds=${GROQ_INSIGHTS_SUMMARY_TIMEOUT_SECONDS}
+      - GroqServices__NutritionService__ApiKey=${GROQ_NUTRITION_API_KEY}
+      - GroqServices__NutritionService__PrimaryModel=${GROQ_NUTRITION_PRIMARY_MODEL}
+      - GroqServices__NutritionService__FallbackModel=${GROQ_NUTRITION_FALLBACK_MODEL}
+      - GroqServices__NutritionService__MaxTokens=${GROQ_NUTRITION_MAX_TOKENS}
+      - GroqServices__NutritionService__TimeoutSeconds=${GROQ_NUTRITION_TIMEOUT_SECONDS}
+      # AILabTools
+      - AILabTools__ApiBaseUrl=${AILABTOOLS_API_BASE_URL}
+      - AILabTools__RequestTimeoutSeconds=${AILABTOOLS_REQUEST_TIMEOUT_SECONDS}
+      - AILabTools__MaxImageSizeBytes=${AILABTOOLS_MAX_IMAGE_SIZE_BYTES}
+      - AILabTools__MaxImageResolution=${AILABTOOLS_MAX_IMAGE_RESOLUTION}
+      # AWS S3
       - AWS__S3__AccessKey=${S3_AI_ACCESS_KEY}
       - AWS__S3__SecretKey=${S3_AI_SECRET_KEY}
-      - AWS__S3__BucketName=${S3_BUCKET_NAME}
-      - AWS__S3__Region=${S3_REGION}
+      - AWS__S3__BucketName=${S3_AI_BUCKET_NAME}
+      - AWS__S3__Region=${S3_AI_REGION}
+      - AWS__S3__CloudFrontDomain=${CLOUDFRONT_DOMAIN}
+      - AWS__S3__CloudFrontDistributionId=${CLOUDFRONT_DISTRIBUTION_ID}
+      - AWS__S3__PresignedUrlExpiryHours=1
+      - AWS__S3__MaxFileSizeBytes=10485760
+      - AWS__S3__FileUploadPath=uploads/
+      # AWS CloudFront
+      - AWS__CloudFront__DistributionId=${CLOUDFRONT_DISTRIBUTION_ID}
+      - AWS__CloudFront__Domain=${CLOUDFRONT_DOMAIN}
+      - AWS__CloudFront__CacheTtlSeconds=${CLOUDFRONT_CACHE_TTL_SECONDS}
+      - AWS__CloudFront__EnableInvalidation=${CLOUDFRONT_ENABLE_INVALIDATION}
+      # Tesseract OCR
+      - Tesseract__DataPath=${TESSERACT_DATA_PATH}
+      - Tesseract__Language=${TESSERACT_LANGUAGE}
+      # Call Recordings
+      - CallRecordings__UploadPath=${CALL_RECORDINGS_UPLOAD_PATH}
+      - CallRecordings__MaxFileSizeBytes=${CALL_RECORDINGS_MAX_FILE_SIZE_BYTES}
+      # Voice
+      - Voice__MaxFileSizeBytes=${VOICE_MAX_FILE_SIZE_BYTES}
+      - Services__Hospital__GrpcUrl=http://hospital-service:6104
+      - Services__Doctor__GrpcUrl=http://doctor-service:6108
     networks:
       - bookingcare-network
     restart: unless-stopped
