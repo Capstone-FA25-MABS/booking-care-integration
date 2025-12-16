@@ -4,6 +4,7 @@
 .env.*.local
 .env.bk
 .env.example
+.env.*
 
 # Docker
 docker-compose.override.yml

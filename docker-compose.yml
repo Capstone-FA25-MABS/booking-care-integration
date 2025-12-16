@@ -470,8 +470,8 @@ services:
       - FrontendOptions__Client__BaseUrl=${FRONTEND_CLIENT_BASEURL}
       - FrontendOptions__Admin__BaseUrl=${FRONTEND_ADMIN_BASEURL}
       - FrontendOptions__Default__BaseUrl=${FRONTEND_DEFAULT_BASEURL}
-      - FrontendOptions__HostMap__13.229.47.179:5174=${FRONTEND_HOSTMAP_ADMIN}
-      - FrontendOptions__HostMap__13.229.47.179:5173=${FRONTEND_HOSTMAP_CLIENT}
+      - FrontendOptions__HostMap__medcure.com.vn=${FRONTEND_HOSTMAP_CLIENT}
+      - FrontendOptions__HostMap__admin.medcure.com.vn=${FRONTEND_HOSTMAP_ADMIN}
     networks:
       - bookingcare-network
     restart: unless-stopped
@@ -859,6 +859,15 @@ services:
     restart: unless-stopped
 
   ui-user:
+    build:
+      context: ../booking-care-system-ui
+      dockerfile: Dockerfile
+      args:
+        - VITE_API_URL=${VITE_API_URL}
+        - VITE_RECAPTCHA_SITE_KEY=${VITE_RECAPTCHA_SITE_KEY}
+        - VITE_GOOGLE_CLIENT_ID=${VITE_GOOGLE_CLIENT_ID}
+        - VITE_FACEBOOK_APP_ID=${VITE_FACEBOOK_APP_ID}
+        - VITE_DEVICE_ID=${VITE_DEVICE_ID}
     image: ${DOCKER_USERNAME:-hiumx}/bookingcare-frontend:${VERSION:-latest}
     platform: linux/amd64
     container_name: bookingcare_ui_user
@@ -866,12 +875,6 @@ services:
       - "5173:80"
     depends_on:
       - api-gateway
-    environment:
-      - VITE_API_URL=${VITE_API_URL}
-      - VITE_RECAPTCHA_SITE_KEY=${VITE_RECAPTCHA_SITE_KEY}
-      - VITE_GOOGLE_CLIENT_ID=${VITE_GOOGLE_CLIENT_ID}
-      - VITE_FACEBOOK_APP_ID=${VITE_FACEBOOK_APP_ID}
-      - VITE_DEVICE_ID=${VITE_DEVICE_ID}
     networks:
       - bookingcare-network
     healthcheck:
@@ -883,6 +886,15 @@ services:
     restart: unless-stopped
 
   ui-admin:
+    build:
+      context: ../booking-care-system-ui-admin
+      dockerfile: Dockerfile
+      args:
+        - VITE_API_URL=${VITE_API_URL}
+        - VITE_RECAPTCHA_SITE_KEY=${VITE_RECAPTCHA_SITE_KEY}
+        - VITE_GOOGLE_CLIENT_ID=${VITE_GOOGLE_CLIENT_ID}
+        - VITE_FACEBOOK_APP_ID=${VITE_FACEBOOK_APP_ID}
+        - MABS_APP_NAME=${MABS_APP_NAME}
     image: ${DOCKER_USERNAME:-hiumx}/bookingcare-frontend-admin:${VERSION:-latest}
     platform: linux/amd64
     container_name: bookingcare_ui_admin
@@ -890,12 +902,6 @@ services:
       - "5174:80"
     depends_on:
       - api-gateway
-    environment:
-      - VITE_API_URL=${VITE_API_URL}
-      - VITE_RECAPTCHA_SITE_KEY=${VITE_RECAPTCHA_SITE_KEY}
-      - VITE_GOOGLE_CLIENT_ID=${VITE_GOOGLE_CLIENT_ID}
-      - VITE_FACEBOOK_APP_ID=${VITE_FACEBOOK_APP_ID}
-      - MABS_APP_NAME=${MABS_APP_NAME}
     networks:
       - bookingcare-network
     healthcheck:
