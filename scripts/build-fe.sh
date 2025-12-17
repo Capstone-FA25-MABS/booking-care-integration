@@ -31,7 +31,7 @@ cd /home/ubuntu/projects/booking-care-integration
 docker-compose pull ui-user ui-admin
 
 # Recreate containers
-docker-compose up -d --force-recreate ui-user ui-admin
+docker-compose up -d --force-recreate doctor-service
 
 # Verify
 docker ps | grep ui
@@ -41,3 +41,9 @@ docker build --platform linux/amd64 -t hiumx/bookingcare-api-gateway:latest -f s
 docker build --platform linux/amd64 -t hiumx/bookingcare-hospital-service:latest -f src/Services/BookingCare.Services.Hospital/Dockerfile . && docker push hiumx/bookingcare-hospital-service:latest   
 
 docker build --platform linux/amd64 -t hiumx/bookingcare-service-medical-service:latest -f src/Services/BookingCare.Services.ServiceMedical/Dockerfile . && docker push hiumx/bookingcare-service-medical-service:latest   
+
+docker build --platform linux/amd64 -t hiumx/bookingcare-ai-service:latest -f src/Services/BookingCare.Services.AI/Dockerfile . && docker push hiumx/bookingcare-ai-service:latest
+
+docker build --platform linux/amd64 -t hiumx/bookingcare-schedule-service:latest -f src/Services/BookingCare.Services.Schedule/Dockerfile . && docker push hiumx/bookingcare-schedule-service:latest
+
+docker build --platform linux/amd64 -t hiumx/bookingcare-doctor-service:latest -f src/Services/BookingCare.Services.Doctor/Dockerfile . && docker push hiumx/bookingcare-doctor-service:latest   
