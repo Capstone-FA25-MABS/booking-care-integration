@@ -47,3 +47,8 @@ docker build --platform linux/amd64 -t hiumx/bookingcare-ai-service:latest -f sr
 docker build --platform linux/amd64 -t hiumx/bookingcare-schedule-service:latest -f src/Services/BookingCare.Services.Schedule/Dockerfile . && docker push hiumx/bookingcare-schedule-service:latest
 
 docker build --platform linux/amd64 -t hiumx/bookingcare-doctor-service:latest -f src/Services/BookingCare.Services.Doctor/Dockerfile . && docker push hiumx/bookingcare-doctor-service:latest   
+
+docker build --platform linux/amd64 -t hiumx/bookingcare-servicemedical-service:latest -f src/Services/BookingCare.Services.ServiceMedical/Dockerfile . && docker push hiumx/bookingcare-servicemedical-service:latest
+    
+docker build --platform linux/amd64 -t hiumx/bookingcare-servicemedical-service:latest -f src/Services/BookingCare.Services.ServiceMedical/Dockerfile . && docker push hiumx/bookingcare-servicemedical-service:latest
+docker build --platform linux/amd64 -t hiumx/bookingcare-payment-service:latest -f src/Services/BookingCare.Services.Payment/Dockerfile . && docker push hiumx/bookingcare-payment-service:latest

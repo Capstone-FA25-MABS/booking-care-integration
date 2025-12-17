@@ -1,7 +1,7 @@
 # BookingCare Microservices - Full Docker Compose
 # Sử dụng: docker-compose -f docker-compose-full.yml up -d
 
-version: '3.8'
+version: "3.8"
 
 services:
   # Infrastructure
@@ -83,7 +83,8 @@ services:
     networks:
       - bookingcare-network
     healthcheck:
-      test: ["CMD-SHELL", "timeout 5 bash -c '</dev/tcp/127.0.0.1/1433' || exit 1"]
+      test:
+        ["CMD-SHELL", "timeout 5 bash -c '</dev/tcp/127.0.0.1/1433' || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 5
@@ -105,7 +106,8 @@ services:
     networks:
       - bookingcare-network
     healthcheck:
-      test: ["CMD-SHELL", "timeout 5 bash -c '</dev/tcp/127.0.0.1/1433' || exit 1"]
+      test:
+        ["CMD-SHELL", "timeout 5 bash -c '</dev/tcp/127.0.0.1/1433' || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 5
@@ -127,7 +129,8 @@ services:
     networks:
       - bookingcare-network
     healthcheck:
-      test: ["CMD-SHELL", "timeout 5 bash -c '</dev/tcp/127.0.0.1/1433' || exit 1"]
+      test:
+        ["CMD-SHELL", "timeout 5 bash -c '</dev/tcp/127.0.0.1/1433' || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 5
@@ -149,7 +152,8 @@ services:
     networks:
       - bookingcare-network
     healthcheck:
-      test: ["CMD-SHELL", "timeout 5 bash -c '</dev/tcp/127.0.0.1/1433' || exit 1"]
+      test:
+        ["CMD-SHELL", "timeout 5 bash -c '</dev/tcp/127.0.0.1/1433' || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 5
@@ -171,7 +175,8 @@ services:
     networks:
       - bookingcare-network
     healthcheck:
-      test: ["CMD-SHELL", "timeout 5 bash -c '</dev/tcp/127.0.0.1/1433' || exit 1"]
+      test:
+        ["CMD-SHELL", "timeout 5 bash -c '</dev/tcp/127.0.0.1/1433' || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 5
@@ -193,7 +198,8 @@ services:
     networks:
       - bookingcare-network
     healthcheck:
-      test: ["CMD-SHELL", "timeout 5 bash -c '</dev/tcp/127.0.0.1/1433' || exit 1"]
+      test:
+        ["CMD-SHELL", "timeout 5 bash -c '</dev/tcp/127.0.0.1/1433' || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 5
@@ -215,7 +221,8 @@ services:
     networks:
       - bookingcare-network
     healthcheck:
-      test: ["CMD-SHELL", "timeout 5 bash -c '</dev/tcp/127.0.0.1/1433' || exit 1"]
+      test:
+        ["CMD-SHELL", "timeout 5 bash -c '</dev/tcp/127.0.0.1/1433' || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 5
@@ -237,7 +244,8 @@ services:
     networks:
       - bookingcare-network
     healthcheck:
-      test: ["CMD-SHELL", "timeout 5 bash -c '</dev/tcp/127.0.0.1/1433' || exit 1"]
+      test:
+        ["CMD-SHELL", "timeout 5 bash -c '</dev/tcp/127.0.0.1/1433' || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 5
@@ -259,7 +267,8 @@ services:
     networks:
       - bookingcare-network
     healthcheck:
-      test: ["CMD-SHELL", "timeout 5 bash -c '</dev/tcp/127.0.0.1/1433' || exit 1"]
+      test:
+        ["CMD-SHELL", "timeout 5 bash -c '</dev/tcp/127.0.0.1/1433' || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 5
@@ -281,7 +290,8 @@ services:
     networks:
       - bookingcare-network
     healthcheck:
-      test: ["CMD-SHELL", "timeout 5 bash -c '</dev/tcp/127.0.0.1/1433' || exit 1"]
+      test:
+        ["CMD-SHELL", "timeout 5 bash -c '</dev/tcp/127.0.0.1/1433' || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 5
@@ -303,7 +313,8 @@ services:
     networks:
       - bookingcare-network
     healthcheck:
-      test: ["CMD-SHELL", "timeout 5 bash -c '</dev/tcp/127.0.0.1/1433' || exit 1"]
+      test:
+        ["CMD-SHELL", "timeout 5 bash -c '</dev/tcp/127.0.0.1/1433' || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 5
@@ -575,7 +586,6 @@ services:
       - Saga__ConnectionString=${SAGA_CONNECTION_STRING}
       - OtpVerification__Secret=${OTP_VERIFICATION_SECRET}
       - OtpVerification__GrpcEndpoint=http://notification-service:6110
-      - Services__Auth__GrpcUrl=http://auth-service:6103
       - Services__User__GrpcUrl=http://user-service:6116
       - Services__Doctor__GrpcUrl=http://doctor-service:6108
       - Services__Hospital__GrpcUrl=http://hospital-service:6104
@@ -705,6 +715,10 @@ services:
       - AWS__S3__SecretKey=${S3_SECRET_KEY}
       - AWS__S3__BucketName=${S3_BUCKET_NAME}
       - AWS__S3__Region=${S3_REGION}
+      - GrpcClients__Favorites__Address=http://favorites-service:6109
+      - GrpcClients__Auth__Address=http://auth-service:6103
+      - GrpcClients__Hopital__Address=http://hospital-service:6104
+      - GrpcClients__Review__Address=http://review-service:6112
     networks:
       - bookingcare-network
     restart: unless-stopped
@@ -754,11 +768,15 @@ services:
       - RabbitMQ__UserName=${RABBITMQ_DEFAULT_USER}
       - RabbitMQ__Password=${RABBITMQ_DEFAULT_PASS}
       - RabbitMQ__VirtualHost=${RABBITMQ_DEFAULT_VHOST}
-      - GrpcClients__Doctor__Address=http://doctor-service:6108
       - AWS__S3__AccessKey=${S3_ACCESS_KEY}
       - AWS__S3__SecretKey=${S3_SECRET_KEY}
       - AWS__S3__BucketName=${S3_BUCKET_NAME}
       - AWS__S3__Region=${S3_REGION}
+      - GrpcClients__Auth__Address=http://auth-service:6103
+      - GrpcClients__Doctor__Address=http://doctor-service:6108
+      - GrpcClients__ServiceMedical__Address=http://servicemedical-service:6115
+      - GrpcClients__Review__Address=http://review-service:6112
+      - GrpcClients__Notification__Address=http://notification-service:6110
     networks:
       - bookingcare-network
     restart: unless-stopped
@@ -831,8 +849,18 @@ services:
       - PayOSConfiguration__ClientId=${PAYOS_CLIENT_ID}
       - PayOSConfiguration__ApiKey=${PAYOS_API_KEY}
       - PayOSConfiguration__ChecksumKey=${PAYOS_CHECKSUM_KEY}
+      - PayOSConfiguration__ReturnUrl=${PAYOS_RETURN_URL}
+      - PayOSConfiguration__CancelUrl=${PAYOS_CANCEL_URL}
+      - PayOSConfiguration__TimeoutInMinutes=${PAYOS_TIMEOUT_IN_MINUTES}
+      - PayOSConfiguration__CleanupIntervalMinutes=${PAYOS_CLEANUP_INTERVAL_MINUTES}
       - StripeConfiguration__SecretKey=${STRIPE_SECRET_KEY}
       - StripeConfiguration__PublishableKey=${STRIPE_PUBLISHABLE_KEY}
+      - StripeConfiguration__WebhookSecret=${STRIPE_WEBHOOK_SECRET}
+      - StripeConfiguration__SuccessUrl=${STRIPE_SUCCESS_URL}
+      - StripeConfiguration__CancelUrl=${STRIPE_CANCEL_URL}
+      - StripeConfiguration__Currency=${STRIPE_CURRENCY}
+      - Services__User__GrpcUrl=http://user-service:6116
+      - Services__Appointment__GrpcUrl=http://appointment-service:6102
     networks:
       - bookingcare-network
     restart: unless-stopped
@@ -934,6 +962,8 @@ services:
       - Jwt__Issuer=${JWT_ISSUER}
       - Jwt__Audience=${JWT_AUDIENCE}
       - GrpcClients__Hospital__Address=http://hospital-service:6104
+      - GrpcClients__Review__Address=http://review-service:6112
+      - HospitalService__BaseUrl=http://hospital-service:6104
       - AWS__S3__AccessKey=${S3_ACCESS_KEY}
       - AWS__S3__SecretKey=${S3_SECRET_KEY}
       - AWS__S3__BucketName=${S3_BUCKET_NAME}
@@ -993,7 +1023,15 @@ services:
     networks:
       - bookingcare-network
     healthcheck:
-      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:80/"]
+      test:
+        [
+          "CMD",
+          "wget",
+          "--quiet",
+          "--tries=1",
+          "--spider",
+          "http://localhost:80/",
+        ]
       interval: 30s
       timeout: 3s
       retries: 3
@@ -1020,7 +1058,15 @@ services:
     networks:
       - bookingcare-network
     healthcheck:
-      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:80/"]
+      test:
+        [
+          "CMD",
+          "wget",
+          "--quiet",
+          "--tries=1",
+          "--spider",
+          "http://localhost:80/",
+        ]
       interval: 30s
       timeout: 3s
       retries: 3
