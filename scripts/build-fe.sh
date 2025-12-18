@@ -52,3 +52,6 @@ docker build --platform linux/amd64 -t hiumx/bookingcare-servicemedical-service:
     
 docker build --platform linux/amd64 -t hiumx/bookingcare-servicemedical-service:latest -f src/Services/BookingCare.Services.ServiceMedical/Dockerfile . && docker push hiumx/bookingcare-servicemedical-service:latest
 docker build --platform linux/amd64 -t hiumx/bookingcare-payment-service:latest -f src/Services/BookingCare.Services.Payment/Dockerfile . && docker push hiumx/bookingcare-payment-service:latest
+
+
+docker build --platform linux/amd64 -t hiumx/bookingcare-saga-service:latest -f src/Services/BookingCare.Services.Saga/Dockerfile . && docker push hiumx/bookingcare-saga-service:latest  
