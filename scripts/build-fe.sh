@@ -12,14 +12,23 @@ docker buildx build --platform linux/amd64 \
     -t hiumx/bookingcare-frontend-admin:latest \
     --push .
 
+docker buildx build --platform linux/amd64 \
+    --build-arg VITE_API_URL=https://api.medcure.com.vn/api \
+    --build-arg VITE_RECAPTCHA_SITE_KEY=6LcV_KUrAAAAANoaMiIxrwva-Sj6h0w-0zXkRuWp \
+    --build-arg VITE_GOOGLE_CLIENT_ID=766011988725-2ef6bioidme1bur67ndammjj22cpefo9.apps.googleusercontent.com \
+    --build-arg VITE_FACEBOOK_APP_ID=1157258869837908 \
+    --build-arg MABS_APP_NAME="BookingCare Admin" \
+    -t hiumx/bookingcare-frontend-admin:latest \
+    --push .
+
 echo "Building Patient UI..."
 cd ../booking-care-system-ui
 docker buildx build --platform linux/amd64 \
-    --build-arg VITE_API_URL=$VITE_API_URL \
-    --build-arg VITE_RECAPTCHA_SITE_KEY=$VITE_RECAPTCHA_SITE_KEY \
-    --build-arg VITE_GOOGLE_CLIENT_ID=$VITE_GOOGLE_CLIENT_ID \
-    --build-arg VITE_FACEBOOK_APP_ID=$VITE_FACEBOOK_APP_ID \
-    --build-arg VITE_DEVICE_ID=web-production \
+    --build-arg VITE_API_URL=https://api.medcure.com.vn/api \
+    --build-arg VITE_RECAPTCHA_SITE_KEY=6LcV_KUrAAAAANoaMiIxrwva-Sj6h0w-0zXkRuWp \
+    --build-arg VITE_GOOGLE_CLIENT_ID=766011988725-2ef6bioidme1bur67ndammjj22cpefo9.apps.googleusercontent.com \
+    --build-arg VITE_FACEBOOK_APP_ID=1157258869837908 \
+    --build-arg VITE_DEVICE_ID=68ca20290a4096a8570e72b2 \
     -t hiumx/bookingcare-frontend:latest \
     --push .
 

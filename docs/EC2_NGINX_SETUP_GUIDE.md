@@ -494,3 +494,126 @@ sudo certbot renew
    ```bash
    sudo cp /etc/nginx/sites-available/medcure-* ~/nginx-backup/
    ```
+
+
+## 📊 BƯỚC 8: Cấu hình Nginx cho Prometheus & Grafana (Optional)
+
+### 8.1. Tổng quan
+
+| Domain | Service | Port nội bộ |
+|--------|---------|-------------|
+| `monitoring.medcure.com.vn` | Grafana | 3000 |
+| `prometheus.medcure.com.vn` | Prometheus | 9090 |
+
+### 8.2. Tạo file config cho Grafana (monitoring.medcure.com.vn)
+
+```bash
+sudo nano /etc/nginx/sites-available/medcure-grafana
+```
+
+**Nội dung:**
+
+```nginx
+server {
+    listen 80;
+    server_name monitoring.medcure.com.vn;
+
+    # Security headers
+    add_header X-Frame-Options "SAMEORIGIN" always;
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header X-XSS-Protection "1; mode=block" always;
+
+    # Grafana
+    location / {
+        proxy_pass http://localhost:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_cache_bypass $http_upgrade;
+        proxy_read_timeout 86400;
+    }
+
+    # Health check
+    location /health {
+        access_log off;
+        return 200 "healthy\n";
+        add_header Content-Type text/plain;
+    }
+}
+```
+
+### 8.3. Tạo file config cho Prometheus (prometheus.medcure.com.vn)
+
+```bash
+sudo nano /etc/nginx/sites-available/medcure-prometheus
+```
+
+**Nội dung:**
+
+```nginx
+server {
+    listen 80;
+    server_name prometheus.medcure.com.vn;
+
+    # Security headers
+    add_header X-Frame-Options "SAMEORIGIN" always;
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header X-XSS-Protection "1; mode=block" always;
+
+    # Prometheus
+    location / {
+        proxy_pass http://localhost:9090;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_cache_bypass $http_upgrade;
+        proxy_read_timeout 300s;
+    }
+
+    # Health check
+    location /health {
+        access_log off;
+        return 200 "healthy\n";
+        add_header Content-Type text/plain;
+    }
+}
+```
+
+### 8.4. Enable các site config
+
+```bash
+# Tạo symbolic links
+sudo ln -s /etc/nginx/sites-available/medcure-grafana /etc/nginx/sites-enabled/
+sudo ln -s /etc/nginx/sites-available/medcure-prometheus /etc/nginx/sites-enabled/
+
+# Kiểm tra cấu hình Nginx
+sudo nginx -t
+
+# Reload Nginx
+sudo systemctl reload nginx
+```
+
+### 8.5. Cấu hình SSL cho Monitoring services
+
+```bash
+# Lấy SSL certificate cho monitoring domains
+sudo certbot --nginx -d monitoring.medcure.com.vn -d prometheus.medcure.com.vn
+```
+
+### 8.6. Kiểm tra hoạt động
+
+```bash
+# Kiểm tra Grafana
+curl -I https://monitoring.medcure.com.vn
+
+# Kiểm tra Prometheus
+curl -I https://prometheus.medcure.com.vn
+```
