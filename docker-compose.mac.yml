@@ -1,7 +1,7 @@
 # BookingCare Microservices - Full Docker Compose
 # Sử dụng: docker-compose -f docker-compose-full.yml up -d
 
-version: '3.8'
+version: "3.8"
 
 services:
   # Infrastructure
@@ -76,28 +76,15 @@ services:
       - MSSQL_PID=Developer
     volumes:
       - sqlserver_discount_data:/var/opt/mssql
-      - ./data/db_discount.sql:/tmp/db_discount.sql:ro
-      - ./scripts/init-sqlserver-edge.sh:/tmp/init-sqlserver.sh:ro
-    entrypoint: /bin/bash
-    command:
-      - -c
-      - |
-        /opt/mssql/bin/sqlservr &
-        SQLPID=$$!
-        echo "SQL Server starting with PID: $$SQLPID"
-        cp /tmp/init-sqlserver.sh /var/opt/mssql/init.sh
-        chmod +x /var/opt/mssql/init.sh
-        /var/opt/mssql/init.sh 'DiscountDB' '/tmp/db_discount.sql' "${SQLSERVER_DISCOUNT_PASSWORD}"
-        echo "Initialization complete, keeping SQL Server running"
-        wait $$SQLPID
     networks:
       - bookingcare-network
     healthcheck:
-      test: ["CMD-SHELL", "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P ${SQLSERVER_DISCOUNT_PASSWORD} -Q 'SELECT 1' || exit 1"]
+      test:
+        ["CMD-SHELL", "timeout 5 bash -c '</dev/tcp/127.0.0.1/1433' || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 5
-      start_period: 90s
+      start_period: 20s
     restart: unless-stopped
 
   sqlserver-saga:
@@ -111,26 +98,15 @@ services:
       - MSSQL_PID=Developer
     volumes:
       - sqlserver_saga_data:/var/opt/mssql
-      - ./data/db_saga.sql:/tmp/db_saga.sql:ro
-      - ./scripts/init-sqlserver-edge.sh:/tmp/init-sqlserver.sh:ro
-    entrypoint: /bin/bash
-    command:
-      - -c
-      - |
-        /opt/mssql/bin/sqlservr &
-        SQLPID=$$!
-        cp /tmp/init-sqlserver.sh /var/opt/mssql/init.sh
-        chmod +x /var/opt/mssql/init.sh
-        /var/opt/mssql/init.sh 'SagaDB' '/tmp/db_saga.sql' "${SQLSERVER_SAGA_PASSWORD}"
-        wait $$SQLPID
     networks:
       - bookingcare-network
     healthcheck:
-      test: ["CMD-SHELL", "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P ${SQLSERVER_SAGA_PASSWORD} -Q 'SELECT 1' || exit 1"]
+      test:
+        ["CMD-SHELL", "timeout 5 bash -c '</dev/tcp/127.0.0.1/1433' || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 5
-      start_period: 90s
+      start_period: 20s
     restart: unless-stopped
 
   sqlserver-user:
@@ -144,26 +120,15 @@ services:
       - MSSQL_PID=Developer
     volumes:
       - sqlserver_user_data:/var/opt/mssql
-      - ./data/db_user.sql:/tmp/db_user.sql:ro
-      - ./scripts/init-sqlserver-edge.sh:/tmp/init-sqlserver.sh:ro
-    entrypoint: /bin/bash
-    command:
-      - -c
-      - |
-        /opt/mssql/bin/sqlservr &
-        SQLPID=$$!
-        cp /tmp/init-sqlserver.sh /var/opt/mssql/init.sh
-        chmod +x /var/opt/mssql/init.sh
-        /var/opt/mssql/init.sh 'UserDB' '/tmp/db_user.sql' "${SQLSERVER_USER_PASSWORD}"
-        wait $$SQLPID
     networks:
       - bookingcare-network
     healthcheck:
-      test: ["CMD-SHELL", "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P ${SQLSERVER_USER_PASSWORD} -Q 'SELECT 1' || exit 1"]
+      test:
+        ["CMD-SHELL", "timeout 5 bash -c '</dev/tcp/127.0.0.1/1433' || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 5
-      start_period: 90s
+      start_period: 20s
     restart: unless-stopped
 
   sqlserver-doctor:
@@ -177,26 +142,15 @@ services:
       - MSSQL_PID=Developer
     volumes:
       - sqlserver_doctor_data:/var/opt/mssql
-      - ./data/db_doctor.sql:/tmp/db_doctor.sql:ro
-      - ./scripts/init-sqlserver-edge.sh:/tmp/init-sqlserver.sh:ro
-    entrypoint: /bin/bash
-    command:
-      - -c
-      - |
-        /opt/mssql/bin/sqlservr &
-        SQLPID=$$!
-        cp /tmp/init-sqlserver.sh /var/opt/mssql/init.sh
-        chmod +x /var/opt/mssql/init.sh
-        /var/opt/mssql/init.sh 'DoctorDB' '/tmp/db_doctor.sql' "${SQLSERVER_DOCTOR_PASSWORD}"
-        wait $$SQLPID
     networks:
       - bookingcare-network
     healthcheck:
-      test: ["CMD-SHELL", "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P ${SQLSERVER_DOCTOR_PASSWORD} -Q 'SELECT 1' || exit 1"]
+      test:
+        ["CMD-SHELL", "timeout 5 bash -c '</dev/tcp/127.0.0.1/1433' || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 5
-      start_period: 90s
+      start_period: 20s
     restart: unless-stopped
 
   sqlserver-auth:
@@ -210,26 +164,15 @@ services:
       - MSSQL_PID=Developer
     volumes:
       - sqlserver_auth_data:/var/opt/mssql
-      - ./data/db_auth.sql:/tmp/db_auth.sql:ro
-      - ./scripts/init-sqlserver-edge.sh:/tmp/init-sqlserver.sh:ro
-    entrypoint: /bin/bash
-    command:
-      - -c
-      - |
-        /opt/mssql/bin/sqlservr &
-        SQLPID=$$!
-        cp /tmp/init-sqlserver.sh /var/opt/mssql/init.sh
-        chmod +x /var/opt/mssql/init.sh
-        /var/opt/mssql/init.sh 'AuthDB' '/tmp/db_auth.sql' "${SQLSERVER_AUTH_PASSWORD}"
-        wait $$SQLPID
     networks:
       - bookingcare-network
     healthcheck:
-      test: ["CMD-SHELL", "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P ${SQLSERVER_AUTH_PASSWORD} -Q 'SELECT 1' || exit 1"]
+      test:
+        ["CMD-SHELL", "timeout 5 bash -c '</dev/tcp/127.0.0.1/1433' || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 5
-      start_period: 90s
+      start_period: 20s
     restart: unless-stopped
 
   sqlserver-appointment:
@@ -243,26 +186,15 @@ services:
       - MSSQL_PID=Developer
     volumes:
       - sqlserver_appointment_data:/var/opt/mssql
-      - ./data/db_appointment.sql:/tmp/db_appointment.sql:ro
-      - ./scripts/init-sqlserver-edge.sh:/tmp/init-sqlserver.sh:ro
-    entrypoint: /bin/bash
-    command:
-      - -c
-      - |
-        /opt/mssql/bin/sqlservr &
-        SQLPID=$$!
-        cp /tmp/init-sqlserver.sh /var/opt/mssql/init.sh
-        chmod +x /var/opt/mssql/init.sh
-        /var/opt/mssql/init.sh 'AppointmentDB' '/tmp/db_appointment.sql' "${SQLSERVER_APPOINTMENT_PASSWORD}"
-        wait $$SQLPID
     networks:
       - bookingcare-network
     healthcheck:
-      test: ["CMD-SHELL", "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P ${SQLSERVER_APPOINTMENT_PASSWORD} -Q 'SELECT 1' || exit 1"]
+      test:
+        ["CMD-SHELL", "timeout 5 bash -c '</dev/tcp/127.0.0.1/1433' || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 5
-      start_period: 90s
+      start_period: 20s
     restart: unless-stopped
 
   sqlserver-hospital:
@@ -276,26 +208,15 @@ services:
       - MSSQL_PID=Developer
     volumes:
       - sqlserver_hospital_data:/var/opt/mssql
-      - ./data/db_hospital.sql:/tmp/db_hospital.sql:ro
-      - ./scripts/init-sqlserver-edge.sh:/tmp/init-sqlserver.sh:ro
-    entrypoint: /bin/bash
-    command:
-      - -c
-      - |
-        /opt/mssql/bin/sqlservr &
-        SQLPID=$$!
-        cp /tmp/init-sqlserver.sh /var/opt/mssql/init.sh
-        chmod +x /var/opt/mssql/init.sh
-        /var/opt/mssql/init.sh 'HospitalDB' '/tmp/db_hospital.sql' "${SQLSERVER_HOSPITAL_PASSWORD}"
-        wait $$SQLPID
     networks:
       - bookingcare-network
     healthcheck:
-      test: ["CMD-SHELL", "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P ${SQLSERVER_HOSPITAL_PASSWORD} -Q 'SELECT 1' || exit 1"]
+      test:
+        ["CMD-SHELL", "timeout 5 bash -c '</dev/tcp/127.0.0.1/1433' || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 5
-      start_period: 90s
+      start_period: 20s
     restart: unless-stopped
 
   sqlserver-schedule:
@@ -309,26 +230,15 @@ services:
       - MSSQL_PID=Developer
     volumes:
       - sqlserver_schedule_data:/var/opt/mssql
-      - ./data/db_schedule.sql:/tmp/db_schedule.sql:ro
-      - ./scripts/init-sqlserver-edge.sh:/tmp/init-sqlserver.sh:ro
-    entrypoint: /bin/bash
-    command:
-      - -c
-      - |
-        /opt/mssql/bin/sqlservr &
-        SQLPID=$$!
-        cp /tmp/init-sqlserver.sh /var/opt/mssql/init.sh
-        chmod +x /var/opt/mssql/init.sh
-        /var/opt/mssql/init.sh 'ScheduleDB' '/tmp/db_schedule.sql' "${SQLSERVER_SCHEDULE_PASSWORD}"
-        wait $$SQLPID
     networks:
       - bookingcare-network
     healthcheck:
-      test: ["CMD-SHELL", "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P ${SQLSERVER_SCHEDULE_PASSWORD} -Q 'SELECT 1' || exit 1"]
+      test:
+        ["CMD-SHELL", "timeout 5 bash -c '</dev/tcp/127.0.0.1/1433' || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 5
-      start_period: 90s
+      start_period: 20s
     restart: unless-stopped
 
   sqlserver-payment:
@@ -342,30 +252,20 @@ services:
       - MSSQL_PID=Developer
     volumes:
       - sqlserver_payment_data:/var/opt/mssql
-      - ./data/db_payment.sql:/tmp/db_payment.sql:ro
-      - ./scripts/init-sqlserver-edge.sh:/tmp/init-sqlserver.sh:ro
-    entrypoint: /bin/bash
-    command:
-      - -c
-      - |
-        /opt/mssql/bin/sqlservr &
-        SQLPID=$$!
-        cp /tmp/init-sqlserver.sh /var/opt/mssql/init.sh
-        chmod +x /var/opt/mssql/init.sh
-        /var/opt/mssql/init.sh 'PaymentDB' '/tmp/db_payment.sql' "${SQLSERVER_PAYMENT_PASSWORD}"
-        wait $$SQLPID
     networks:
       - bookingcare-network
     healthcheck:
-      test: ["CMD-SHELL", "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P ${SQLSERVER_PAYMENT_PASSWORD} -Q 'SELECT 1' || exit 1"]
+      test:
+        ["CMD-SHELL", "timeout 5 bash -c '</dev/tcp/127.0.0.1/1433' || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 5
-      start_period: 90s
+      start_period: 20s
     restart: unless-stopped
 
   sqlserver-servicemedical:
     image: mcr.microsoft.com/azure-sql-edge:latest
+  
     container_name: bookingcare_sqlserver_servicemedical
     ports:
       - "1452:1433"
@@ -375,26 +275,15 @@ services:
       - MSSQL_PID=Developer
     volumes:
       - sqlserver_servicemedical_data:/var/opt/mssql
-      - ./data/db_service-medical.sql:/tmp/db_service-medical.sql:ro
-      - ./scripts/init-sqlserver-edge.sh:/tmp/init-sqlserver.sh:ro
-    entrypoint: /bin/bash
-    command:
-      - -c
-      - |
-        /opt/mssql/bin/sqlservr &
-        SQLPID=$$!
-        cp /tmp/init-sqlserver.sh /var/opt/mssql/init.sh
-        chmod +x /var/opt/mssql/init.sh
-        /var/opt/mssql/init.sh 'ServiceMedicalDB' '/tmp/db_service-medical.sql' "${SQLSERVER_SERVICEMEDICAL_PASSWORD}"
-        wait $$SQLPID
     networks:
       - bookingcare-network
     healthcheck:
-      test: ["CMD-SHELL", "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P ${SQLSERVER_SERVICEMEDICAL_PASSWORD} -Q 'SELECT 1' || exit 1"]
+      test:
+        ["CMD-SHELL", "timeout 5 bash -c '</dev/tcp/127.0.0.1/1433' || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 5
-      start_period: 90s
+      start_period: 20s
     restart: unless-stopped
 
   sqlserver-ai:
@@ -408,32 +297,107 @@ services:
       - MSSQL_PID=Developer
     volumes:
       - sqlserver_ai_data:/var/opt/mssql
-      - ./data/db_ai.sql:/tmp/db_ai.sql:ro
-      - ./scripts/init-sqlserver-edge.sh:/tmp/init-sqlserver.sh:ro
-    entrypoint: /bin/bash
-    command:
-      - -c
-      - |
-        /opt/mssql/bin/sqlservr &
-        SQLPID=$$!
-        cp /tmp/init-sqlserver.sh /var/opt/mssql/init.sh
-        chmod +x /var/opt/mssql/init.sh
-        /var/opt/mssql/init.sh 'AIDB' '/tmp/db_ai.sql' "${SQLSERVER_AI_PASSWORD}"
-        wait $$SQLPID
     networks:
       - bookingcare-network
     healthcheck:
-      test: ["CMD-SHELL", "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P ${SQLSERVER_AI_PASSWORD} -Q 'SELECT 1' || exit 1"]
+      test:
+        ["CMD-SHELL", "timeout 5 bash -c '</dev/tcp/127.0.0.1/1433' || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 5
-      start_period: 90s
+      start_period: 20s
+    restart: unless-stopped
+
+  # Monitoring Stack
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: bookingcare_prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./monitoring/prometheus/alert.rules.yml:/etc/prometheus/alert.rules.yml
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+      - '--web.enable-lifecycle'
+    networks:
+      - bookingcare-network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:9090/-/healthy"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    restart: unless-stopped
+    depends_on:
+      - redis
+      - mongodb
+      - rabbitmq
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: bookingcare_grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_ADMIN_USER:-admin}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:-admin}
+      - GF_INSTALL_PLUGINS=grafana-piechart-panel
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_SERVER_ROOT_URL=http://localhost:3000
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning
+      - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards
+    networks:
+      - bookingcare-network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    restart: unless-stopped
+    depends_on:
+      - prometheus
+
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: bookingcare_node_exporter
+    ports:
+      - "9100:9100"
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+    networks:
+      - bookingcare-network
+    restart: unless-stopped
+
+  redis-exporter:
+    image: oliver006/redis_exporter:latest
+    container_name: bookingcare_redis_exporter
+    ports:
+      - "9121:9121"
+    environment:
+      - REDIS_ADDR=redis://redis:6379
+    networks:
+      - bookingcare-network
+    depends_on:
+      - redis
     restart: unless-stopped
 
   # Microservices
   api-gateway:
     image: ${DOCKER_USERNAME:-hiumx}/bookingcare-api-gateway:${VERSION:-latest}
-  
     container_name: bookingcare_api_gateway
     ports:
       - "5001:5001"
@@ -467,7 +431,6 @@ services:
 
   ai-service:
     image: ${DOCKER_USERNAME:-hiumx}/bookingcare-ai-service:${VERSION:-latest}
-  
     container_name: bookingcare_ai_service
     ports:
       - "6001:6001"
@@ -475,25 +438,139 @@ services:
     depends_on:
       sqlserver-ai:
         condition: service_healthy
+      sqlserver-appointment:
+        condition: service_healthy
+      sqlserver-payment:
+        condition: service_healthy
+      sqlserver-doctor:
+        condition: service_healthy
+      sqlserver-hospital:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
     environment:
       - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT}
       - ASPNETCORE_URLS=http://+:6001;http://+:6101
+      # Connection Strings
       - ConnectionStrings__DefaultConnection=${AI_CONNECTION_STRING}
-      - Jwt__SecretKey=${JWT_KEY}
+      - ConnectionStrings__AppointmentConnection=${APPOINTMENT_CONNECTION_STRING}
+      - ConnectionStrings__PaymentConnection=${PAYMENT_CONNECTION_STRING}
+      - ConnectionStrings__DoctorConnection=${DOCTOR_CONNECTION_STRING}
+      - ConnectionStrings__HospitalConnection=${HOSPITAL_CONNECTION_STRING}
+      # JWT
+      - Jwt__Key=${JWT_KEY}
       - Jwt__Issuer=${JWT_ISSUER}
       - Jwt__Audience=${JWT_AUDIENCE}
-      - Gemini__ApiKey=${GEMINI_API_KEY}
+      # RabbitMQ
+      - RabbitMQ__HostName=${RABBITMQ_HOSTNAME}
+      - RabbitMQ__Port=${RABBITMQ_PORT}
+      - RabbitMQ__UserName=${RABBITMQ_DEFAULT_USER}
+      - RabbitMQ__Password=${RABBITMQ_DEFAULT_PASS}
+      - RabbitMQ__VirtualHost=${RABBITMQ_DEFAULT_VHOST}
+      - RabbitMQ__ExchangeName=booking_care_event_bus
+      - RabbitMQ__QueueName=ai-service-queue
+      - RabbitMQ__RetryCount=3
+      - RabbitMQ__ConnectionTimeout=30000
+      - RabbitMQ__RequestedHeartbeat=60
+      - RabbitMQ__AutomaticRecoveryEnabled=true
+      - RabbitMQ__NetworkRecoveryInterval=5000
+      - RabbitMQ__PersistentMessages=true
+      - RabbitMQ__AutoDeleteQueue=false
+      - RabbitMQ__DurableQueue=true
+      - RabbitMQ__ExclusiveQueue=false
+      # Gemini Base Configuration
+      - Gemini__ApiEndpoint=${GEMINI_API_ENDPOINT}
+      - Gemini__Temperature=${GEMINI_TEMPERATURE}
+      - Gemini__MaxTokens=${GEMINI_MAX_TOKENS}
+      - Gemini__TopK=${GEMINI_TOP_K}
+      - Gemini__TopP=${GEMINI_TOP_P}
+      # Gemini Services
+      - GeminiServices__SymptomAnalysis__ApiKey=${GEMINI_SYMPTOM_ANALYSIS_API_KEY}
+      - GeminiServices__SymptomAnalysis__PrimaryModel=${GEMINI_SYMPTOM_ANALYSIS_PRIMARY_MODEL}
+      - GeminiServices__SymptomAnalysis__FallbackModel=${GEMINI_SYMPTOM_ANALYSIS_FALLBACK_MODEL}
+      - GeminiServices__SymptomAnalysis__MaxTokens=${GEMINI_SYMPTOM_ANALYSIS_MAX_TOKENS}
+      - GeminiServices__LabResultAnalysis__ApiKey=${GEMINI_LAB_RESULT_API_KEY}
+      - GeminiServices__LabResultAnalysis__PrimaryModel=${GEMINI_LAB_RESULT_PRIMARY_MODEL}
+      - GeminiServices__LabResultAnalysis__FallbackModel=${GEMINI_LAB_RESULT_FALLBACK_MODEL}
+      - GeminiServices__LabResultAnalysis__MaxTokens=${GEMINI_LAB_RESULT_MAX_TOKENS}
+      - GeminiServices__DermatologyAnalysis__ApiKey=${GEMINI_DERMATOLOGY_API_KEY}
+      - GeminiServices__DermatologyAnalysis__PrimaryModel=${GEMINI_DERMATOLOGY_PRIMARY_MODEL}
+      - GeminiServices__DermatologyAnalysis__FallbackModel=${GEMINI_DERMATOLOGY_FALLBACK_MODEL}
+      - GeminiServices__MedicalSummary__ApiKey=${GEMINI_MEDICAL_SUMMARY_API_KEY}
+      - GeminiServices__MedicalSummary__PrimaryModel=${GEMINI_MEDICAL_SUMMARY_PRIMARY_MODEL}
+      - GeminiServices__MedicalSummary__FallbackModel=${GEMINI_MEDICAL_SUMMARY_FALLBACK_MODEL}
+      # Groq Base Configuration
+      - Groq__ApiEndpoint=${GROQ_API_ENDPOINT}
+      - Groq__ApiKey=${GROQ_API_KEY}
+      - Groq__AskingModel=${GROQ_ASKING_MODEL}
+      - Groq__ConclusionModel=${GROQ_CONCLUSION_MODEL}
+      - Groq__Temperature=${GROQ_TEMPERATURE}
+      - Groq__MaxTokens=${GROQ_MAX_TOKENS}
+      - Groq__MaxRetries=${GROQ_MAX_RETRIES}
+      - Groq__TimeoutSeconds=${GROQ_TIMEOUT_SECONDS}
+      - Groq__Enabled=${GROQ_ENABLED}
+      # Groq Services
+      - GroqServices__SymptomAnalysis__ApiKey=${GROQ_SYMPTOM_ANALYSIS_API_KEY}
+      - GroqServices__SymptomAnalysis__PrimaryModel=${GROQ_SYMPTOM_ANALYSIS_PRIMARY_MODEL}
+      - GroqServices__SymptomAnalysis__FallbackModel=${GROQ_SYMPTOM_ANALYSIS_FALLBACK_MODEL}
+      - GroqServices__SymptomAnalysis__MaxTokens=${GROQ_SYMPTOM_ANALYSIS_MAX_TOKENS}
+      - GroqServices__LabResultAnalysis__ApiKey=${GROQ_LAB_RESULT_API_KEY}
+      - GroqServices__LabResultAnalysis__PrimaryModel=${GROQ_LAB_RESULT_PRIMARY_MODEL}
+      - GroqServices__LabResultAnalysis__FallbackModel=${GROQ_LAB_RESULT_FALLBACK_MODEL}
+      - GroqServices__LabResultAnalysis__MaxTokens=${GROQ_LAB_RESULT_MAX_TOKENS}
+      - GroqServices__DermatologyAnalysis__ApiKey=${GROQ_DERMATOLOGY_API_KEY}
+      - GroqServices__DermatologyAnalysis__PrimaryModel=${GROQ_DERMATOLOGY_PRIMARY_MODEL}
+      - GroqServices__DermatologyAnalysis__FallbackModel=${GROQ_DERMATOLOGY_FALLBACK_MODEL}
+      - GroqServices__MedicalSummary__ApiKey=${GROQ_MEDICAL_SUMMARY_API_KEY}
+      - GroqServices__MedicalSummary__PrimaryModel=${GROQ_MEDICAL_SUMMARY_PRIMARY_MODEL}
+      - GroqServices__MedicalSummary__FallbackModel=${GROQ_MEDICAL_SUMMARY_FALLBACK_MODEL}
+      - GroqServices__InsightsSummary__ApiKey=${GROQ_INSIGHTS_SUMMARY_API_KEY}
+      - GroqServices__InsightsSummary__PrimaryModel=${GROQ_INSIGHTS_SUMMARY_PRIMARY_MODEL}
+      - GroqServices__InsightsSummary__FallbackModel=${GROQ_INSIGHTS_SUMMARY_FALLBACK_MODEL}
+      - GroqServices__InsightsSummary__MaxTokens=${GROQ_INSIGHTS_SUMMARY_MAX_TOKENS}
+      - GroqServices__InsightsSummary__Temperature=${GROQ_INSIGHTS_SUMMARY_TEMPERATURE}
+      - GroqServices__InsightsSummary__TimeoutSeconds=${GROQ_INSIGHTS_SUMMARY_TIMEOUT_SECONDS}
+      - GroqServices__NutritionService__ApiKey=${GROQ_NUTRITION_API_KEY}
+      - GroqServices__NutritionService__PrimaryModel=${GROQ_NUTRITION_PRIMARY_MODEL}
+      - GroqServices__NutritionService__FallbackModel=${GROQ_NUTRITION_FALLBACK_MODEL}
+      - GroqServices__NutritionService__MaxTokens=${GROQ_NUTRITION_MAX_TOKENS}
+      - GroqServices__NutritionService__TimeoutSeconds=${GROQ_NUTRITION_TIMEOUT_SECONDS}
+      # AILabTools
+      - AILabTools__ApiBaseUrl=${AILABTOOLS_API_BASE_URL}
+      - AILabTools__RequestTimeoutSeconds=${AILABTOOLS_REQUEST_TIMEOUT_SECONDS}
+      - AILabTools__MaxImageSizeBytes=${AILABTOOLS_MAX_IMAGE_SIZE_BYTES}
+      - AILabTools__MaxImageResolution=${AILABTOOLS_MAX_IMAGE_RESOLUTION}
+      # AWS S3
       - AWS__S3__AccessKey=${S3_AI_ACCESS_KEY}
       - AWS__S3__SecretKey=${S3_AI_SECRET_KEY}
-      - AWS__S3__BucketName=${S3_BUCKET_NAME}
-      - AWS__S3__Region=${S3_REGION}
+      - AWS__S3__BucketName=${S3_AI_BUCKET_NAME}
+      - AWS__S3__Region=${S3_AI_REGION}
+      - AWS__S3__CloudFrontDomain=${CLOUDFRONT_DOMAIN}
+      - AWS__S3__CloudFrontDistributionId=${CLOUDFRONT_DISTRIBUTION_ID}
+      - AWS__S3__PresignedUrlExpiryHours=1
+      - AWS__S3__MaxFileSizeBytes=10485760
+      - AWS__S3__FileUploadPath=uploads/
+      # AWS CloudFront
+      - AWS__CloudFront__DistributionId=${CLOUDFRONT_DISTRIBUTION_ID}
+      - AWS__CloudFront__Domain=${CLOUDFRONT_DOMAIN}
+      - AWS__CloudFront__CacheTtlSeconds=${CLOUDFRONT_CACHE_TTL_SECONDS}
+      - AWS__CloudFront__EnableInvalidation=${CLOUDFRONT_ENABLE_INVALIDATION}
+      # Tesseract OCR
+      - Tesseract__DataPath=${TESSERACT_DATA_PATH}
+      - Tesseract__Language=${TESSERACT_LANGUAGE}
+      # Call Recordings
+      - CallRecordings__UploadPath=${CALL_RECORDINGS_UPLOAD_PATH}
+      - CallRecordings__MaxFileSizeBytes=${CALL_RECORDINGS_MAX_FILE_SIZE_BYTES}
+      # Voice
+      - Voice__MaxFileSizeBytes=${VOICE_MAX_FILE_SIZE_BYTES}
+      - GrpcClients__Hospital__Address=http://hospital-service:6104
+      - GrpcClients__Doctor__Address=http://doctor-service:6108
     networks:
       - bookingcare-network
     restart: unless-stopped
 
   analytics-service:
     image: ${DOCKER_USERNAME:-hiumx}/bookingcare-analytics-service:${VERSION:-latest}
-  
     container_name: bookingcare_analytics_service
     ports:
       - "6000:6000"
@@ -515,7 +592,6 @@ services:
 
   appointment-service:
     image: ${DOCKER_USERNAME:-hiumx}/bookingcare-appointment-service:${VERSION:-latest}
-  
     container_name: bookingcare_appointment_service
     ports:
       - "6002:6002"
@@ -554,7 +630,6 @@ services:
 
   auth-service:
     image: ${DOCKER_USERNAME:-hiumx}/bookingcare-auth-service:${VERSION:-latest}
-  
     container_name: bookingcare_auth_service
     ports:
       - "6003:6003"
@@ -580,20 +655,23 @@ services:
       - Saga__ConnectionString=${SAGA_CONNECTION_STRING}
       - OtpVerification__Secret=${OTP_VERIFICATION_SECRET}
       - OtpVerification__GrpcEndpoint=http://notification-service:6110
-      - Services__Auth__GrpcUrl=http://auth-service:6103
       - Services__User__GrpcUrl=http://user-service:6116
       - Services__Doctor__GrpcUrl=http://doctor-service:6108
       - Services__Hospital__GrpcUrl=http://hospital-service:6104
       - ExternalAuth__Google__ClientId=${GOOGLE_CLIENT_ID}
       - ExternalAuth__Facebook__AppId=${FACEBOOK_APP_ID}
       - ExternalAuth__Facebook__AppSecret=${FACEBOOK_APP_SECRET}
+      - FrontendOptions__Client__BaseUrl=${FRONTEND_CLIENT_BASEURL}
+      - FrontendOptions__Admin__BaseUrl=${FRONTEND_ADMIN_BASEURL}
+      - FrontendOptions__Default__BaseUrl=${FRONTEND_DEFAULT_BASEURL}
+      - FrontendOptions__HostMap__medcure.com.vn=${FRONTEND_HOSTMAP_CLIENT}
+      - FrontendOptions__HostMap__admin.medcure.com.vn=${FRONTEND_HOSTMAP_ADMIN}
     networks:
       - bookingcare-network
     restart: unless-stopped
 
   communication-service:
     image: ${DOCKER_USERNAME:-hiumx}/bookingcare-communication-service:${VERSION:-latest}
-  
     container_name: bookingcare_communication_service
     ports:
       - "6006:6006"
@@ -631,7 +709,6 @@ services:
 
   content-service:
     image: ${DOCKER_USERNAME:-hiumx}/bookingcare-content-service:${VERSION:-latest}
-  
     container_name: bookingcare_content_service
     ports:
       - "6005:6005"
@@ -653,7 +730,6 @@ services:
 
   discount-service:
     image: ${DOCKER_USERNAME:-hiumx}/bookingcare-discount-service:${VERSION:-latest}
-  
     container_name: bookingcare_discount_service
     ports:
       - "6007:6007"
@@ -680,7 +756,6 @@ services:
 
   doctor-service:
     image: ${DOCKER_USERNAME:-hiumx}/bookingcare-doctor-service:${VERSION:-latest}
-  
     container_name: bookingcare_doctor_service
     ports:
       - "6008:6008"
@@ -705,13 +780,16 @@ services:
       - AWS__S3__SecretKey=${S3_SECRET_KEY}
       - AWS__S3__BucketName=${S3_BUCKET_NAME}
       - AWS__S3__Region=${S3_REGION}
+      - GrpcClients__Favorites__Address=http://favorites-service:6109
+      - GrpcClients__Auth__Address=http://auth-service:6103
+      - GrpcClients__Hopital__Address=http://hospital-service:6104
+      - GrpcClients__Review__Address=http://review-service:6112
     networks:
       - bookingcare-network
     restart: unless-stopped
 
   favorites-service:
     image: ${DOCKER_USERNAME:-hiumx}/bookingcare-favorites-service:${VERSION:-latest}
-  
     container_name: bookingcare_favorites_service
     ports:
       - "6009:6009"
@@ -733,7 +811,6 @@ services:
 
   hospital-service:
     image: ${DOCKER_USERNAME:-hiumx}/bookingcare-hospital-service:${VERSION:-latest}
-  
     container_name: bookingcare_hospital_service
     ports:
       - "6004:6004"
@@ -754,18 +831,21 @@ services:
       - RabbitMQ__UserName=${RABBITMQ_DEFAULT_USER}
       - RabbitMQ__Password=${RABBITMQ_DEFAULT_PASS}
       - RabbitMQ__VirtualHost=${RABBITMQ_DEFAULT_VHOST}
-      - GrpcClients__Doctor__Address=http://doctor-service:6108
       - AWS__S3__AccessKey=${S3_ACCESS_KEY}
       - AWS__S3__SecretKey=${S3_SECRET_KEY}
       - AWS__S3__BucketName=${S3_BUCKET_NAME}
       - AWS__S3__Region=${S3_REGION}
+      - GrpcClients__Auth__Address=http://auth-service:6103
+      - GrpcClients__Doctor__Address=http://doctor-service:6108
+      - GrpcClients__ServiceMedical__Address=http://servicemedical-service:6115
+      - GrpcClients__Review__Address=http://review-service:6112
+      - GrpcClients__Notification__Address=http://notification-service:6110
     networks:
       - bookingcare-network
     restart: unless-stopped
 
   notification-service:
     image: ${DOCKER_USERNAME:-hiumx}/bookingcare-notification-service:${VERSION:-latest}
-  
     container_name: bookingcare_notification_service
     ports:
       - "6010:6010"
@@ -804,7 +884,6 @@ services:
 
   payment-service:
     image: ${DOCKER_USERNAME:-hiumx}/bookingcare-payment-service:${VERSION:-latest}
-  
     container_name: bookingcare_payment_service
     ports:
       - "6088:6088"
@@ -831,15 +910,24 @@ services:
       - PayOSConfiguration__ClientId=${PAYOS_CLIENT_ID}
       - PayOSConfiguration__ApiKey=${PAYOS_API_KEY}
       - PayOSConfiguration__ChecksumKey=${PAYOS_CHECKSUM_KEY}
+      - PayOSConfiguration__ReturnUrl=${PAYOS_RETURN_URL}
+      - PayOSConfiguration__CancelUrl=${PAYOS_CANCEL_URL}
+      - PayOSConfiguration__TimeoutInMinutes=${PAYOS_TIMEOUT_IN_MINUTES}
+      - PayOSConfiguration__CleanupIntervalMinutes=${PAYOS_CLEANUP_INTERVAL_MINUTES}
       - StripeConfiguration__SecretKey=${STRIPE_SECRET_KEY}
       - StripeConfiguration__PublishableKey=${STRIPE_PUBLISHABLE_KEY}
+      - StripeConfiguration__WebhookSecret=${STRIPE_WEBHOOK_SECRET}
+      - StripeConfiguration__SuccessUrl=${STRIPE_SUCCESS_URL}
+      - StripeConfiguration__CancelUrl=${STRIPE_CANCEL_URL}
+      - StripeConfiguration__Currency=${STRIPE_CURRENCY}
+      - Services__User__GrpcUrl=http://user-service:6116
+      - Services__Appointment__GrpcUrl=http://appointment-service:6102
     networks:
       - bookingcare-network
     restart: unless-stopped
 
   review-service:
     image: ${DOCKER_USERNAME:-hiumx}/bookingcare-review-service:${VERSION:-latest}
-  
     container_name: bookingcare_review_service
     ports:
       - "6012:6012"
@@ -864,7 +952,6 @@ services:
 
   saga-service:
     image: ${DOCKER_USERNAME:-hiumx}/bookingcare-saga-service:${VERSION:-latest}
-  
     container_name: bookingcare_saga_service
     ports:
       - "6013:6013"
@@ -885,7 +972,6 @@ services:
 
   schedule-service:
     image: ${DOCKER_USERNAME:-hiumx}/bookingcare-schedule-service:${VERSION:-latest}
-  
     container_name: bookingcare_schedule_service
     ports:
       - "6014:6014"
@@ -918,7 +1004,6 @@ services:
 
   servicemedical-service:
     image: ${DOCKER_USERNAME:-hiumx}/bookingcare-servicemedical-service:${VERSION:-latest}
-  
     container_name: bookingcare_servicemedical_service
     ports:
       - "6015:6015"
@@ -934,6 +1019,8 @@ services:
       - Jwt__Issuer=${JWT_ISSUER}
       - Jwt__Audience=${JWT_AUDIENCE}
       - GrpcClients__Hospital__Address=http://hospital-service:6104
+      - GrpcClients__Review__Address=http://review-service:6112
+      - HospitalService__BaseUrl=http://hospital-service:6104
       - AWS__S3__AccessKey=${S3_ACCESS_KEY}
       - AWS__S3__SecretKey=${S3_SECRET_KEY}
       - AWS__S3__BucketName=${S3_BUCKET_NAME}
@@ -944,7 +1031,6 @@ services:
 
   user-service:
     image: ${DOCKER_USERNAME:-hiumx}/bookingcare-user-service:${VERSION:-latest}
-  
     container_name: bookingcare_user_service
     ports:
       - "6016:6016"
@@ -974,22 +1060,33 @@ services:
     restart: unless-stopped
 
   ui-user:
+    build:
+      context: ../booking-care-system-ui
+      dockerfile: Dockerfile
+      args:
+        - VITE_API_URL=${VITE_API_URL}
+        - VITE_RECAPTCHA_SITE_KEY=${VITE_RECAPTCHA_SITE_KEY}
+        - VITE_GOOGLE_CLIENT_ID=${VITE_GOOGLE_CLIENT_ID}
+        - VITE_FACEBOOK_APP_ID=${VITE_FACEBOOK_APP_ID}
+        - VITE_DEVICE_ID=${VITE_DEVICE_ID}
     image: ${DOCKER_USERNAME:-hiumx}/bookingcare-frontend:${VERSION:-latest}
     container_name: bookingcare_ui_user
     ports:
       - "5173:80"
     depends_on:
       - api-gateway
-    environment:
-      - VITE_API_URL=${VITE_API_URL}
-      - VITE_RECAPTCHA_SITE_KEY=${VITE_RECAPTCHA_SITE_KEY}
-      - VITE_GOOGLE_CLIENT_ID=${VITE_GOOGLE_CLIENT_ID}
-      - VITE_FACEBOOK_APP_ID=${VITE_FACEBOOK_APP_ID}
-      - VITE_DEVICE_ID=${VITE_DEVICE_ID}
     networks:
       - bookingcare-network
     healthcheck:
-      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:80/"]
+      test:
+        [
+          "CMD",
+          "wget",
+          "--quiet",
+          "--tries=1",
+          "--spider",
+          "http://localhost:80/",
+        ]
       interval: 30s
       timeout: 3s
       retries: 3
@@ -997,22 +1094,33 @@ services:
     restart: unless-stopped
 
   ui-admin:
+    build:
+      context: ../booking-care-system-ui-admin
+      dockerfile: Dockerfile
+      args:
+        - VITE_API_URL=${VITE_API_URL}
+        - VITE_RECAPTCHA_SITE_KEY=${VITE_RECAPTCHA_SITE_KEY}
+        - VITE_GOOGLE_CLIENT_ID=${VITE_GOOGLE_CLIENT_ID}
+        - VITE_FACEBOOK_APP_ID=${VITE_FACEBOOK_APP_ID}
+        - MABS_APP_NAME=${MABS_APP_NAME}
     image: ${DOCKER_USERNAME:-hiumx}/bookingcare-frontend-admin:${VERSION:-latest}
     container_name: bookingcare_ui_admin
     ports:
       - "5174:80"
     depends_on:
       - api-gateway
-    environment:
-      - VITE_API_URL=${VITE_API_URL}
-      - VITE_RECAPTCHA_SITE_KEY=${VITE_RECAPTCHA_SITE_KEY}
-      - VITE_GOOGLE_CLIENT_ID=${VITE_GOOGLE_CLIENT_ID}
-      - VITE_FACEBOOK_APP_ID=${VITE_FACEBOOK_APP_ID}
-      - MABS_APP_NAME=${MABS_APP_NAME}
     networks:
       - bookingcare-network
     healthcheck:
-      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:80/"]
+      test:
+        [
+          "CMD",
+          "wget",
+          "--quiet",
+          "--tries=1",
+          "--spider",
+          "http://localhost:80/",
+        ]
       interval: 30s
       timeout: 3s
       retries: 3
@@ -1034,50 +1142,8 @@ volumes:
   sqlserver_payment_data:
   sqlserver_servicemedical_data:
   sqlserver_ai_data:
-
-# volumes:
-#   rabbitmq_data:
-#     external: true
-#     name: bookingcaresystembackend_rabbitmq_data
-#   redis_data:
-#     external: true
-#     name: bookingcaresystembackend_redis_data
-#   mongodb_data:
-#     external: true
-#     name: bookingcaresystembackend_mongodb_data
-#   sqlserver_discount_data:
-#     external: true
-#     name: bookingcaresystembackend_sqlserver_discount_data
-#   sqlserver_saga_data:
-#     external: true
-#     name: bookingcaresystembackend_sqlserver_saga_data
-#   sqlserver_user_data:
-#     external: true
-#     name: bookingcaresystembackend_sqlserver_user_data
-#   sqlserver_doctor_data:
-#     external: true
-#     name: bookingcaresystembackend_sqlserver_doctor_data
-#   sqlserver_auth_data:
-#     external: true
-#     name: bookingcaresystembackend_sqlserver_auth_data
-#   sqlserver_appointment_data:
-#     external: true
-#     name: bookingcaresystembackend_sqlserver_appointment_data
-#   sqlserver_hospital_data:
-#     external: true
-#     name: bookingcaresystembackend_sqlserver_hospital_data
-#   sqlserver_schedule_data:
-#     external: true
-#     name: bookingcaresystembackend_sqlserver_schedule_data
-#   sqlserver_payment_data:
-#     external: true
-#     name: bookingcaresystembackend_sqlserver_payment_data
-#   sqlserver_servicemedical_data:
-#     external: true
-#     name: bookingcaresystembackend_sqlserver_servicemedical_data
-#   sqlserver_ai_data:
-#     external: true
-#     name: bookingcaresystembackend_sqlserver_ai_data
+  prometheus_data:
+  grafana_data:
 
 networks:
   bookingcare-network:
