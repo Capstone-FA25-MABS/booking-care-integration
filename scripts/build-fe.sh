@@ -43,10 +43,10 @@ echo "Done! Images pushed to Docker Hub"
 cd /home/ubuntu/projects/booking-care-integration
 
 # Pull latest images
-docker-compose pull auth-service ui-user ui-admin
+docker-compose pull doctor-service ui-user ui-admin
 
 # Recreate containers
-docker-compose up -d --force-recreate auth-service ui-user ui-admin
+docker-compose up -d --force-recreate doctor-service ui-user ui-admin
 
 # Verify
 docker ps | grep ui
@@ -72,3 +72,5 @@ docker build --platform linux/amd64 -t hiumx/bookingcare-payment-service:latest 
 docker build --platform linux/amd64 -t hiumx/bookingcare-saga-service:latest -f src/Services/BookingCare.Services.Saga/Dockerfile . && docker push hiumx/bookingcare-saga-service:latest  
 
 docker build --platform linux/amd64 -t hiumx/bookingcare-auth-service:latest -f src/Services/BookingCare.Services.Auth/Dockerfile . && docker push hiumx/bookingcare-auth-service:latest  
+
+docker build --platform linux/amd64 -t hiumx/bookingcare-content-service:latest -f src/Services/BookingCare.Services.Content/Dockerfile . && docker push hiumx/bookingcare-content-service:latest
