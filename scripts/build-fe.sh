@@ -9,6 +9,8 @@ docker buildx build --platform linux/amd64 \
     --build-arg VITE_GOOGLE_CLIENT_ID=$VITE_GOOGLE_CLIENT_ID \
     --build-arg VITE_FACEBOOK_APP_ID=$VITE_FACEBOOK_APP_ID \
     --build-arg MABS_APP_NAME="BookingCare Admin" \
+    --build-arg VITE_TURN_USERNAME="85260e0133b9465d0db65886" \
+    --build-arg VITE_TURN_CREDENTIAL="96UTskaSujqk9MVz" \
     -t hiumx/bookingcare-frontend-admin:latest \
     --push .
 
@@ -18,6 +20,8 @@ docker buildx build --platform linux/amd64 \
     --build-arg VITE_GOOGLE_CLIENT_ID=766011988725-2ef6bioidme1bur67ndammjj22cpefo9.apps.googleusercontent.com \
     --build-arg VITE_FACEBOOK_APP_ID=1157258869837908 \
     --build-arg MABS_APP_NAME="BookingCare Admin" \
+    --build-arg VITE_TURN_USERNAME="85260e0133b9465d0db65886" \
+    --build-arg VITE_TURN_CREDENTIAL="96UTskaSujqk9MVz" \
     -t hiumx/bookingcare-frontend-admin:latest \
     --push .
 
@@ -29,6 +33,8 @@ docker buildx build --platform linux/amd64 \
     --build-arg VITE_GOOGLE_CLIENT_ID=766011988725-2ef6bioidme1bur67ndammjj22cpefo9.apps.googleusercontent.com \
     --build-arg VITE_FACEBOOK_APP_ID=1157258869837908 \
     --build-arg VITE_DEVICE_ID=68ca20290a4096a8570e72b2 \
+    --build-arg VITE_TURN_USERNAME="85260e0133b9465d0db65886" \
+    --build-arg VITE_TURN_CREDENTIAL="96UTskaSujqk9MVz" \
     -t hiumx/bookingcare-frontend:latest \
     --push .
 
@@ -37,10 +43,10 @@ echo "Done! Images pushed to Docker Hub"
 cd /home/ubuntu/projects/booking-care-integration
 
 # Pull latest images
-docker-compose pull ui-user ui-admin
+docker-compose pull auth-service ui-user ui-admin
 
 # Recreate containers
-docker-compose up -d --force-recreate doctor-service
+docker-compose up -d --force-recreate auth-service ui-user ui-admin
 
 # Verify
 docker ps | grep ui
@@ -64,3 +70,5 @@ docker build --platform linux/amd64 -t hiumx/bookingcare-payment-service:latest 
 
 
 docker build --platform linux/amd64 -t hiumx/bookingcare-saga-service:latest -f src/Services/BookingCare.Services.Saga/Dockerfile . && docker push hiumx/bookingcare-saga-service:latest  
+
+docker build --platform linux/amd64 -t hiumx/bookingcare-auth-service:latest -f src/Services/BookingCare.Services.Auth/Dockerfile . && docker push hiumx/bookingcare-auth-service:latest  
