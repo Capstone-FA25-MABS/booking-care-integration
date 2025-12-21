@@ -43,10 +43,15 @@ echo "Done! Images pushed to Docker Hub"
 cd /home/ubuntu/projects/booking-care-integration
 
 # Pull latest images
-docker-compose pull doctor-service ui-user ui-admin
+docker-compose pull payment-service && docker-compose up -d --force-recreate payment-service hospital-service
+
+docker-compose pull payment-service hospital-service
 
 # Recreate containers
-docker-compose up -d --force-recreate doctor-service ui-user ui-admin
+docker-compose up -d --force-recreate ui-user ui-admin
+
+
+docker-compose pull notification-service && docker-compose up -d --force-recreate notification-service
 
 # Verify
 docker ps | grep ui
@@ -74,3 +79,6 @@ docker build --platform linux/amd64 -t hiumx/bookingcare-saga-service:latest -f 
 docker build --platform linux/amd64 -t hiumx/bookingcare-auth-service:latest -f src/Services/BookingCare.Services.Auth/Dockerfile . && docker push hiumx/bookingcare-auth-service:latest  
 
 docker build --platform linux/amd64 -t hiumx/bookingcare-content-service:latest -f src/Services/BookingCare.Services.Content/Dockerfile . && docker push hiumx/bookingcare-content-service:latest
+
+docker build --platform linux/amd64 -t hiumx/bookingcare-content-service:latest -f src/Services/BookingCare.Services.Content/Dockerfile . && docker push hiumx/bookingcare-content-service:latest
+docker build --platform linux/amd64 -t hiumx/bookingcare-notification-service:latest -f src/Services/BookingCare.Services.Notification/Dockerfile . && docker push hiumx/bookingcare-notification-service:latest
