@@ -48,7 +48,7 @@ docker-compose pull payment-service && docker-compose up -d --force-recreate hos
 docker-compose pull payment-service hospital-service
 
 # Recreate containers
-docker-compose up -d --force-recreate ui-user ui-admin
+docker-compose up -d --force-recreate ui-user hospital-service
 
 
 docker-compose pull notification-service && docker-compose up -d --force-recreate notification-service
@@ -82,3 +82,6 @@ docker build --platform linux/amd64 -t hiumx/bookingcare-content-service:latest 
 
 docker build --platform linux/amd64 -t hiumx/bookingcare-content-service:latest -f src/Services/BookingCare.Services.Content/Dockerfile . && docker push hiumx/bookingcare-content-service:latest
 docker build --platform linux/amd64 -t hiumx/bookingcare-notification-service:latest -f src/Services/BookingCare.Services.Notification/Dockerfile . && docker push hiumx/bookingcare-notification-service:latest
+
+docker build --platform linux/amd64 -t hiumx/bookingcare-discount-service:latest -f src/Services/BookingCare.Services.Discount/Dockerfile . && docker push hiumx/bookingcare-discount-service:latest
+
