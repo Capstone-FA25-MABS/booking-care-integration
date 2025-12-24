@@ -48,7 +48,7 @@ docker-compose pull payment-service && docker-compose up -d --force-recreate hos
 docker-compose pull payment-service hospital-service
 
 # Recreate containers
-docker-compose up -d --force-recreate ui-user hospital-service
+docker-compose up -d --force-recreate ai-service ui-user hospital-service
 
 
 docker-compose pull notification-service && docker-compose up -d --force-recreate notification-service
