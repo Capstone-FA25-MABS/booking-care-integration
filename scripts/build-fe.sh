@@ -85,3 +85,6 @@ docker build --platform linux/amd64 -t hiumx/bookingcare-notification-service:la
 
 docker build --platform linux/amd64 -t hiumx/bookingcare-discount-service:latest -f src/Services/BookingCare.Services.Discount/Dockerfile . && docker push hiumx/bookingcare-discount-service:latest
 
+docker build --platform linux/amd64 -t hiumx/bookingcare-appointment-service:latest -f src/Services/BookingCare.Services.Appointment/Dockerfile . && docker push hiumx/bookingcare-appointment-service:latest
+
+
