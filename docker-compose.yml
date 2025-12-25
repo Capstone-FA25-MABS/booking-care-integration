@@ -431,49 +431,49 @@ services:
       - redis
     restart: unless-stopped
 
-  mongodb-exporter:
-    image: percona/mongodb_exporter:latest
-    container_name: bookingcare_mongodb_exporter
-    ports:
-      - "9216:9216"
-    environment:
-      - MONGODB_URI=mongodb://${MONGO_INITDB_ROOT_USERNAME}:${MONGO_INITDB_ROOT_PASSWORD}@mongodb:27017/?authSource=admin
-    command:
-      - '--mongodb.uri=$(MONGODB_URI)'
-      - '--collect-all'
-    networks:
-      - bookingcare-network
-    depends_on:
-      - mongodb
-    restart: unless-stopped
+  # mongodb-exporter:
+  #   image: percona/mongodb_exporter:latest
+  #   container_name: bookingcare_mongodb_exporter
+  #   ports:
+  #     - "9216:9216"
+  #   environment:
+  #     - MONGODB_URI=mongodb://${MONGO_INITDB_ROOT_USERNAME}:${MONGO_INITDB_ROOT_PASSWORD}@mongodb:27017/?authSource=admin
+  #   command:
+  #     - '--mongodb.uri=$(MONGODB_URI)'
+  #     - '--collect-all'
+  #   networks:
+  #     - bookingcare-network
+  #   depends_on:
+  #     - mongodb
+  #   restart: unless-stopped
 
-  mssql-exporter:
-    image: awaragi/prometheus-mssql-exporter:latest
-    container_name: bookingcare_mssql_exporter
-    ports:
-      - "4000:4000"
-    environment:
-      - MSSQL_SERVER=sqlserver-discount,sqlserver-saga,sqlserver-user,sqlserver-doctor,sqlserver-auth,sqlserver-appointment,sqlserver-hospital,sqlserver-schedule,sqlserver-payment,sqlserver-servicemedical,sqlserver-ai,sqlserver-content
-      - MSSQL_PORT=1433
-      - MSSQL_USERNAME=sa
-      - MSSQL_PASSWORD=${SQLSERVER_DISCOUNT_PASSWORD}
-      - MSSQL_ENCRYPT=false
-    networks:
-      - bookingcare-network
-    depends_on:
-      - sqlserver-discount
-      - sqlserver-saga
-      - sqlserver-user
-      - sqlserver-doctor
-      - sqlserver-auth
-      - sqlserver-appointment
-      - sqlserver-hospital
-      - sqlserver-schedule
-      - sqlserver-payment
-      - sqlserver-servicemedical
-      - sqlserver-ai
-      - sqlserver-content
-    restart: unless-stopped
+  # mssql-exporter:
+  #   image: awaragi/prometheus-mssql-exporter:latest
+  #   container_name: bookingcare_mssql_exporter
+  #   ports:
+  #     - "4000:4000"
+  #   environment:
+  #     - MSSQL_SERVER=sqlserver-discount,sqlserver-saga,sqlserver-user,sqlserver-doctor,sqlserver-auth,sqlserver-appointment,sqlserver-hospital,sqlserver-schedule,sqlserver-payment,sqlserver-servicemedical,sqlserver-ai,sqlserver-content
+  #     - MSSQL_PORT=1433
+  #     - MSSQL_USERNAME=sa
+  #     - MSSQL_PASSWORD=${SQLSERVER_DISCOUNT_PASSWORD}
+  #     - MSSQL_ENCRYPT=false
+  #   networks:
+  #     - bookingcare-network
+  #   depends_on:
+  #     - sqlserver-discount
+  #     - sqlserver-saga
+  #     - sqlserver-user
+  #     - sqlserver-doctor
+  #     - sqlserver-auth
+  #     - sqlserver-appointment
+  #     - sqlserver-hospital
+  #     - sqlserver-schedule
+  #     - sqlserver-payment
+  #     - sqlserver-servicemedical
+  #     - sqlserver-ai
+  #     - sqlserver-content
+  #   restart: unless-stopped
 
   # Microservices
   api-gateway:
