@@ -43,15 +43,15 @@ echo "Done! Images pushed to Docker Hub"
 cd /home/ubuntu/projects/booking-care-integration
 
 # Pull latest images
-docker-compose pull payment-service && docker-compose up -d --force-recreate hospital-service
+docker-compose pull payment-service && docker-compose up -d --force-recreate doctor-service
 
 docker-compose pull payment-service hospital-service
 
 # Recreate containers
-docker-compose up -d --force-recreate ai-service ui-user hospital-service
+docker-compose up -d --force-recreate payment-service appointment-service ui-admin
 
 
-docker-compose pull notification-service && docker-compose up -d --force-recreate notification-service
+docker-compose pull notification-service && docker-compose up -d --force-recreate schedule-service
 
 # Verify
 docker ps | grep ui
